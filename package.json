@@ -1,0 +1,35 @@
+{
+  "name": "goldwasher",
+  "version": "0.0.0",
+  "description": "A scraper.",
+  "main": "goldwasher.js",
+  "scripts": {
+    "test": "grunt"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexlangberg/goldwasher.git"
+  },
+  "keywords": [
+    "scrape",
+    "scraper",
+    "scraping",
+    "collection"
+  ],
+  "author": "Alex Langberg",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alexlangberg/goldwasher/issues"
+  },
+  "homepage": "https://github.com/alexlangberg/goldwasher",
+  "private": true,
+  "devDependencies": {
+    "grunt": "^0.4.4",
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-clear": "^0.2.1",
+    "grunt-cucumber": "^0.2.3",
+    "cucumber": "^0.4.0"
+  }
+}
