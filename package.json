@@ -38,7 +38,7 @@
   "config": {
     "blanket": {
       "pattern": [
-        "src"
+        "goldwasher/lib"
       ]
     }
   }
