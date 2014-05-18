@@ -32,7 +32,8 @@
     "mocha": "^1.19.0",
     "chai": "^1.9.1",
     "grunt-mocha-test": "^0.10.2",
-    "grunt-mocha-cov": "^0.2.1"
+    "grunt-mocha-cov": "^0.2.1",
+    "mocha-term-cov-reporter": "^0.2.0"
   },
   "config": {
     "blanket": {
