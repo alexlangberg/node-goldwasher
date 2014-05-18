@@ -33,5 +33,12 @@
     "chai": "^1.9.1",
     "grunt-mocha-test": "^0.10.2",
     "grunt-mocha-cov": "^0.2.1"
+  },
+  "config": {
+    "blanket": {
+      "pattern": [
+        "src"
+      ]
+    }
   }
 }

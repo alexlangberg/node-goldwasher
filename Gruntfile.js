@@ -30,7 +30,7 @@ module.exports = function(grunt) {
 	    },
 	    test: {
 		    options: {
-		      reporter: 'spec',
+		      reporter: 'html-cov',
 		      require: ['chai']
 		    }
 	    },
@@ -45,7 +45,11 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-mocha-cov');
 
-	grunt.registerTask('default', ['jshint', 'mochacov:coverage']);
+	grunt.registerTask('default', [
+		'jshint', 
+		'mochacov:test', 
+		'mochacov:coverage'
+	]);
 	grunt.registerTask('travis', ['mochacov:coverage']);
 	grunt.registerTask('test', ['mochacov:test']);
 };
