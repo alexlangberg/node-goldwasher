@@ -8,9 +8,10 @@ module.exports = function(grunt) {
 				files: [
 					'*.js',
 					'tests/**/*.feature',
-					'tests/**/*.js'
+					'tests/**/*.js',
+					'**/*.js' 
 				],
-				tasks: ['clear', 'jshint', 'cucumberjs']
+				tasks: ['clear', 'jshint', 'mochacov:test']
 			}
 		},
 		jshint: {
@@ -21,18 +22,31 @@ module.exports = function(grunt) {
 				src: '*.js'
 			}
 		},
-		cucumberjs: {
-			src: 'tests/features',
-			options: {
-				steps: 'tests/features/step_definitions'
-			}
-		}
+	  mochacov: {
+	    coverage: {
+	      options: {
+	        coveralls: true
+	      }
+	    },
+	    test: {
+		    options: {
+		      reporter: 'spec',
+		      require: ['chai']
+		    }
+	    },
+	    options: {
+	    	files: 'test/*.js'
+	    }
+	  }
 	});
 
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-clear');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
-	grunt.loadNpmTasks('grunt-cucumber');
+	//grunt.loadNpmTasks('grunt-mocha-test');
+	grunt.loadNpmTasks('grunt-mocha-cov');
 
-	grunt.registerTask('default', ['jshint', 'cucumberjs']);
+	grunt.registerTask('default', ['jshint']);
+	grunt.registerTask('travis', ['mochacov:coverage']);
+	grunt.registerTask('test', ['mochacov:test']);
 };

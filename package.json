@@ -29,7 +29,9 @@
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-clear": "^0.2.1",
-    "grunt-cucumber": "^0.2.3",
-    "cucumber": "^0.4.0"
+    "mocha": "^1.19.0",
+    "chai": "^1.9.1",
+    "grunt-mocha-test": "^0.10.2",
+    "grunt-mocha-cov": "^0.2.1"
   }
 }
