@@ -1,1 +1,1 @@
-module.exports = require('./lib/goldwasher.js');
+module.exports = require('./lib/calculator.js');

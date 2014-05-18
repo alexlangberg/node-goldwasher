@@ -1,27 +1,16 @@
 {
-  "name": "goldwasher",
+  "name": "node-template-grunt-mocha-travis-coveralls",
   "version": "0.0.0",
-  "description": "A scraper.",
-  "main": "goldwasher.js",
+  "description": "A test project.",
+  "main": "index.js",
   "scripts": {
     "test": "grunt"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/alexlangberg/goldwasher.git"
-  },
   "keywords": [
-    "scrape",
-    "scraper",
-    "scraping",
-    "collection"
+    "test"
   ],
   "author": "Alex Langberg",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/alexlangberg/goldwasher/issues"
-  },
-  "homepage": "https://github.com/alexlangberg/goldwasher",
   "private": true,
   "devDependencies": {
     "grunt": "^0.4.4",
@@ -38,7 +27,7 @@
   "config": {
     "blanket": {
       "pattern": [
-        "goldwasher/lib"
+        "node-template-grunt-mocha-travis-coveralls/lib"
       ]
     }
   }
