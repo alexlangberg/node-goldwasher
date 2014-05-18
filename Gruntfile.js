@@ -11,7 +11,7 @@ module.exports = function(grunt) {
 					'tests/**/*.js',
 					'**/*.js' 
 				],
-				tasks: ['clear', 'jshint', 'mochacov:test']
+				tasks: ['clear', 'jshint', 'mochacov:unit']
 			}
 		},
 		jshint: {
@@ -22,31 +22,48 @@ module.exports = function(grunt) {
 				src: '*.js'
 			}
 		},
-	  mochacov: {
-	    coverage: {
-	      options: {
-	        coveralls: true
-	      }
-	    },
-	    test: {
-	      options: {
-	        reporter: 'spec'
-	      }
-	    },
-	    options: {
-	      files: 'test/*.js'
-	    }
-	  }
-	});
+    mochacov: {
+      unit: {
+        options: {
+          reporter: 'spec'
+        }
+      },
+      coverage: {
+        options: {
+          reporter: 'mocha-term-cov-reporter',
+          coverage: true
+        }
+      },
+      coveralls: {
+        options: {
+          coveralls: {
+            serviceName: 'travis-ci'
+          }
+        }
+      },
+      options: {
+        files: 'test/*.js',
+        ui: 'bdd',
+        colors: true
+      }
+    }
+	}); 
 
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-clear');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-mocha-cov');
 
-	grunt.registerTask('default', [
-		'jshint'
+	grunt.registerTask('test', [
+		'jshint', 
+		'mochacov:unit', 
+		'mochacov:coverage'
 	]);
-	grunt.registerTask('travis', ['mochacov:coverage']);
-	grunt.registerTask('test', ['mochacov:test']);
+	grunt.registerTask('travis', [
+		'jshint', 
+		'mochacov:unit', 
+		'mochacov:coverage', 
+		'mochacov:coveralls'
+	]);
+	grunt.registerTask('default', 'test');
 };
