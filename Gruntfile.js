@@ -29,13 +29,12 @@ module.exports = function(grunt) {
 	      }
 	    },
 	    test: {
-		    options: {
-		      reporter: 'json-cov',
-		      require: ['chai']
-		    }
+	      options: {
+	        reporter: 'spec'
+	      }
 	    },
 	    options: {
-	    	files: 'test/*.js'
+	      files: 'test/*.js'
 	    }
 	  }
 	});
@@ -46,9 +45,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-mocha-cov');
 
 	grunt.registerTask('default', [
-		'jshint', 
-		'mochacov:test', 
-		'mochacov:coverage'
+		'jshint'
 	]);
 	grunt.registerTask('travis', ['mochacov:coverage']);
 	grunt.registerTask('test', ['mochacov:test']);
