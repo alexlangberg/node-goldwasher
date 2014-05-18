@@ -30,7 +30,7 @@ module.exports = function(grunt) {
 	    },
 	    test: {
 		    options: {
-		      reporter: 'html-cov',
+		      reporter: 'json-cov',
 		      require: ['chai']
 		    }
 	    },
