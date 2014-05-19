@@ -11,7 +11,7 @@ module.exports = function(grunt) {
 					'tests/**/*.js',
 					'**/*.js' 
 				],
-				tasks: ['clear', 'jshint', 'mochacov:unit']
+				tasks: ['clear', 'jshint', 'mochacov:unit', 'mochacov:coverage']
 			}
 		},
 		jshint: {
