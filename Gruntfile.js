@@ -1,16 +1,18 @@
 'use strict';
 
+var filePaths = [
+	'*.js',
+	'lib/**/*.js', 
+	'test/**/*.feature',
+	'test/**/*.js'
+];
+
 module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 		watch: {
 			scripts: {
-				files: [
-					'*.js',
-					'tests/**/*.feature',
-					'tests/**/*.js',
-					'**/*.js' 
-				],
+				files: filePaths,
 				tasks: ['clear', 'jshint', 'mochacov:unit', 'mochacov:coverage']
 			}
 		},
@@ -19,7 +21,7 @@ module.exports = function(grunt) {
 				jshintrc: '.jshintrc'
 			},
 			target: {
-				src: '*.js'
+				src: filePaths
 			}
 		},
     mochacov: {

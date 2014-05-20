@@ -45,7 +45,8 @@
     "grunt-mocha-cov": "~0.2.1",
     "grunt-mocha-test": "~0.10.2",
     "mocha-term-cov-reporter": "~0.2.0",
-    "request": "^2.35.0"
+    "request": "^2.35.0",
+    "cheerio": "^0.16.0"
   },
   "repository": {
     "type": "git",
