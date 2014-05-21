@@ -1,7 +1,9 @@
 'use strict';
 
-/*var expect = require('chai').expect;
-var goldwasher = require('../lib/goldwasher.js');
+/*
+var should; should = require('./testSetup').should();
+
+var goldwasher = require('../lib/goldwasher');
  
 describe('goldwasher', function() {
 

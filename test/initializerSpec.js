@@ -1,7 +1,7 @@
 'use strict';
 
-var expect = require('chai').expect;
-var initializer = require('../lib/initializer.js');
+var should; should = require('./testSetup').should();
+var initializer = require('../lib/initializer');
 var validObject = { 
 	uri: 'http://www.foo.com',
 	tags: 'h1'
@@ -12,26 +12,26 @@ var invalidObject = {
 
 describe('initializer', function() {
 
-		it('should throw error if not passed an object', function () {
+		it('throws if not passed an object', function () {
 			var number = 5;
 			var string = 'foo';
-			expect(function(){ initializer(number); }).to.throw(Error);
-			expect(function(){ initializer(string); }).to.throw(Error);
-			expect(function(){ initializer(); }).to.throw(Error);
+			should.throw(function(){ initializer(number); });
+			should.throw(function(){ initializer(string); });
+			should.throw(function(){ initializer(); });
 		});
 
-		it('should throw if input object does not contain a URI', function () {
-			expect(function(){ initializer(invalidObject); }).to.throw(Error);
+		it('throws if input object does not contain a URI', function () {
+			should.throw(function(){ initializer(invalidObject); });
 		});
 
-		it('should throw if output object does not contain a URI', function () {
+		it('throws if output object does not contain a URI', function () {
 			var success = initializer(validObject);
-			expect(success).to.have.deep.property('uri');
+			success.should.have.deep.property('uri');
 		});
 
-		it('should throw if output object does not contain tags', function () {
+		it('throws if output object does not contain tags', function () {
 			var success = initializer(validObject);
-			expect(success).to.have.deep.property('tags');	
+			success.should.have.deep.property('tags');	
 		});
 
 });
