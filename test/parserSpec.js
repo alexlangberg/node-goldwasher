@@ -16,14 +16,12 @@ describe('parser', function() {
 			parsed.should.be.an('array');
 		});
 
-		it('returns an array with objects', function () {
-			[2].should.all.be.above(1);
-			var rofl = null;
-			should.not.exist(rofl);
+		it('returns an array with objects with a tag', function () {
+			parsed.should.all.have.property('tag');
 		});
-
-		/*it('returned ', function () {
-			expect(parsed).to.have.property('sentences');
-		});*/
+		
+		it('returns an array with objects with a sentence', function () {
+			parsed.should.all.have.property('text');
+		});
 
 });
