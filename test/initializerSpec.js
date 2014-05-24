@@ -10,7 +10,7 @@ var invalidObject = {
 	foo: 'bar'
 };
 
-describe('initializer', function() {
+describe('initializer', function () {
 
 		it('throws if not passed an object', function () {
 			var number = 5;

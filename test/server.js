@@ -1,16 +1,12 @@
 'use strict';
 
+var fs = require('fs');
 var http = require('http');
 var url = require('url');
 var ip = '127.0.0.1';
 var port = '1337';
 var testUrl = 'http://' + ip + ':' + port;
-var testContent  = '<html><body>';
-		testContent += '<h1>foo</h1>';
-		testContent += '<h2>bar</h2>';
-		testContent += '<h3>foobar</h3>';
-		testContent += '<p>foobar foobar</p>';
-		testContent += '</body></html>';
+var testContent  = fs.readFileSync('test/testPage.html', 'utf8');
 
 var server = {
 	testUrl: testUrl,
