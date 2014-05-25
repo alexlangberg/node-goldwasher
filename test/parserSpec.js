@@ -46,10 +46,22 @@ describe('parser', function () {
 		parsed[0].text.should.be.a('string');
 	});
 
-	it.skip('removes newlines from the text', function () {
+	it('removes newlines from the text', function () {
 		parsed = parser(testSettings, testContentNewlines);
-		console.log(parsed);
 		parsed[0].text.should.eql('Add the sum to the product of these three');
+	});
+
+	it('filters nuggets with stop texts', function () {
+		var stopText = 'Oak is strong and also gives shade.';
+		settings = _.extend({ filterTexts: [stopText] }, testSettings);
+		parsed = parser(settings, testContentHref);
+		parsed.should.not.contain.an.item
+			.with.property('text', 'Oak is strong and also gives shade.');
+	});
+
+	it('throws if filterTexts is not an array', function () {
+		settings = _.extend({ filterTexts: 'foo' }, testSettings);
+		should.throw(function(){ parser(settings, testContentNoHref); });
 	});
 
 	it('returns nuggets with an array of keywords', function () {
@@ -111,12 +123,6 @@ describe('parser', function () {
 		parsed = parser(testSettings, testContent);
 		parsed.should.all.have.property('tag');
 		parsed[0].tag.should.be.a('string');
-	});
-
-	it('returns nuggets with the count of all nuggets', function () {
-		parsed = parser(testSettings, testContent);
-		parsed.should.all.have.property('count');
-		parsed[0].count.should.be.a('number');
 	});
 
 	it('returns nuggets with an index of the count', function () {

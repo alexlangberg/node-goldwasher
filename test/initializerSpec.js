@@ -29,7 +29,7 @@ describe('initializer', function () {
 			success.should.have.deep.property('uri');
 		});
 
-		it('throws if output object does not contain tags', function () {
+		it('throws if output object does not contain target tags', function () {
 			var success = initializer(validObject);
 			success.should.have.deep.property('tags');	
 		});
