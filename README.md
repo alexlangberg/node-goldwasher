@@ -6,7 +6,7 @@ node-goldwasher
 [![Dependency Status](https://david-dm.org/alexlangberg/node-goldwasher.svg)](https://david-dm.org/alexlangberg/node-goldwasher)
 [![devDependency Status](https://david-dm.org/alexlangberg/node-goldwasher/dev-status.svg)](https://david-dm.org/alexlangberg/node-goldwasher#info=devDependencies)
 
-A simple scraper for node.
+A simple scraper for node. Still under development and not ready for release yet.
 
 - Parse JS object or use default settings.
 - Fetch data from url with *request*.
