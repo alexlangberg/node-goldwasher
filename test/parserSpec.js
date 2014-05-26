@@ -53,14 +53,14 @@ describe('parser', function () {
 
 	it('filters nuggets with stop texts', function () {
 		var stopText = 'Oak is strong and also gives shade.';
-		settings = _.extend({ filterTexts: [stopText] }, testSettings);
+		settings = _({ filterTexts: [stopText] }).extend(testSettings);
 		parsed = parser(settings, testContentHref);
 		parsed.should.not.contain.an.item
 			.with.property('text', 'Oak is strong and also gives shade.');
 	});
 
 	it('throws if filterTexts is not an array', function () {
-		settings = _.extend({ filterTexts: 'foo' }, testSettings);
+		settings = _({ filterTexts: 'foo' }).extend(testSettings);
 		should.throw(function(){ parser(settings, testContentNoHref); });
 	});
 
@@ -84,8 +84,28 @@ describe('parser', function () {
 		]);
 	});
 
+	it('can sanitize by a standard set of locale stop words', function () {
+		settings = _({ 
+				filterKeywords: ['the'], 
+				filterLocale: 'en' 
+			})
+			.extend(testSettings);
+		parsed = parser(settings, testContentNoHref);
+		parsed[0].keywords.should.eql([ 
+			'open', 
+			'crate',  
+			'break', 
+			'glass' 
+		]);
+	});
+
+	it('throws if filterLocale is not a string', function () {
+		settings = _({ filterLocale: [] }).extend(testSettings);
+		should.throw(function(){ parser(settings, testContentNoHref); });
+	});
+
 	it('returns nuggets with an array of filtered keywords', function () {
-		settings = _.extend({ filterKeywords: ['the'] }, testSettings);
+		settings = _({ filterKeywords: ['the'] }).extend(testSettings);
 		parsed = parser(settings, testContentNoHref);
 		parsed[0].keywords.should.eql([ 
 			'open', 
@@ -98,7 +118,7 @@ describe('parser', function () {
 	});
 
 	it('throws if filterKeywords is not an array', function () {
-		settings = _.extend({ filterKeywords: 'foo' }, testSettings);
+		settings = _({ filterKeywords: 'foo' }).extend(testSettings);
 		should.throw(function(){ parser(settings, testContentNoHref); });
 	});
 
