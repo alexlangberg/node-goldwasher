@@ -1,20 +1,15 @@
 'use strict';
 
-var should; should = require('./testSetup').should();
-var server = require('./server');
+var setup = require('./testSetup');
+var should; should = setup.chai.should();
 var fetcher = require('../lib/fetcher');
-
-before(function (done) {
-	server.run();
-	done();
-});
 
 describe('fetcher', function() {
 
-		it('fetches the response of the URI', function () {
-			var toFetch = { url: server.testUrl };
+		it('fetches the response of the URL', function () {
+			var toFetch = { url: setup.server.testUrl };
 			fetcher(toFetch, function (error, body) {
-				body.should.equal(server.testContent);
+				body.should.equal(setup.server.testContent);
 			});
 		});
 
@@ -25,7 +20,7 @@ describe('fetcher', function() {
 		});
 
 		it('returns an error if the response is not 200', function () {
-			var toFetch = { url: server.testUrl + '?status=404' };
+			var toFetch = { url: setup.server.testUrl + '?status=404' };
 			fetcher(toFetch, function (error) {
 				error.should.be.an.instanceof(Error);
 			});

@@ -1,9 +1,10 @@
 'use strict';
 
-var should; should = require('./testSetup').should();
+var setup = require('./testSetup');
+var should; should = setup.chai.should();
 var initializer = require('../lib/initializer');
 var validObject = { 
-	uri: 'http://www.foo.com',
+	url: 'http://www.foo.com',
 	tags: 'h1'
 };
 var invalidObject = {
@@ -20,13 +21,13 @@ describe('initializer', function () {
 			should.throw(function(){ initializer(); });
 		});
 
-		it('throws if input object does not contain a URI', function () {
+		it('throws if input object does not contain a URL', function () {
 			should.throw(function(){ initializer(invalidObject); });
 		});
 
-		it('throws if output object does not contain a URI', function () {
+		it('throws if output object does not contain a URL', function () {
 			var success = initializer(validObject);
-			success.should.have.deep.property('uri');
+			success.should.have.deep.property('url');
 		});
 
 		it('throws if output object does not contain target tags', function () {

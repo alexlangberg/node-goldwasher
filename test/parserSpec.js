@@ -1,6 +1,7 @@
 'use strict';
 
-var should; should = require('./testSetup').should();
+var setup = require('./testSetup');
+var should; should = setup.chai.should();
 var _ = require('underscore');
 var parser = require('../lib/parser');
 var testSettings = { 
