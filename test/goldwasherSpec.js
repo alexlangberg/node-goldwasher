@@ -156,9 +156,4 @@ describe('goldwasher', function() {
 		parsed.length.should.equal(2);
 	});
 
-	it.skip('returns nuggets with the LIX of the text', function () {
-		parsed = goldwasher(testOptions, testContentNewlines);
-		parsed.should.all.have.property('lix');
-	});
-
 });
