@@ -6,9 +6,9 @@
 [![Dependency Status](https://david-dm.org/alexlangberg/node-goldwasher.svg)](https://david-dm.org/alexlangberg/node-goldwasher)
 [![devDependency Status](https://david-dm.org/alexlangberg/node-goldwasher/dev-status.svg)](https://david-dm.org/alexlangberg/node-goldwasher#info=devDependencies)
 
-Basic text statistics with node. The purpose is to extract text information from html, usually a website, which will often have to be sanitized and filtered to be useful.
+Basic text extraction and statistics with node. The purpose is to extract text information from HTML, usually a website, which will often have to be sanitized and filtered to be useful. This module takes a pile of HTML and washes out the parts you need as small, golden nuggets of text and metadata.
 
-This module works by passing it the targets (html tags) from which the text should be extracted, along with either pure HTML as a string (e.g. from [request](https://www.npmjs.org/package/request)) or a [cheerio](https://www.npmjs.org/package/cheerio) object. It will then return an array of nuggets (objects) of information - one per recognized tag. For each nugget, it will try to:
+It works by passing it the targets (html tags) from which the text should be extracted, along with either pure HTML as a string (e.g. from [request](https://www.npmjs.org/package/request)) or a [cheerio](https://www.npmjs.org/package/cheerio) object. It will then return an array of nuggets (objects) of information - one per recognized tag. For each nugget, it will try to:
 
 1. Get the text of the tag and sanitize it, e.g. remove newlines.
 2. Optionally discard the nugget, if it matches an array of stop texts.
