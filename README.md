@@ -10,7 +10,7 @@
 [![Code Climate](http://img.shields.io/codeclimate/github/alexlangberg/node-goldwasher.svg)](https://codeclimate.com/github/alexlangberg/node-goldwasher)
 [![Dependency Status](https://david-dm.org/alexlangberg/node-goldwasher.svg)](https://david-dm.org/alexlangberg/node-goldwasher)
 [![devDependency Status](https://david-dm.org/alexlangberg/node-goldwasher/dev-status.svg)](https://david-dm.org/alexlangberg/node-goldwasher#info=devDependencies)
-[![npm version](http://img.shields.io/npm/v/node-goldwasher.svg)](https://www.npmjs.org/package/goldwasher)
+[![npm version](http://img.shields.io/npm/v/goldwasher.svg)](https://www.npmjs.org/package/goldwasher)
 
 
 
