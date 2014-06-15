@@ -24,7 +24,7 @@ The returned nuggets include the object properties:
 - ```timestamp``` - the exact time the tag was processed.
 - ```text``` - a sanitized version of the text of the tag.
 - ```keywords``` - a count of each word in the text, special characters removed.
-- ```href``` - the closest link, determined in this order
+- ```href``` - the closest link, the first that matches one of:
   1. Is the tag itself a link?
   2. Does the tag have a child node that is a link?
   3. Is there a link if we traverse up the DOM tree?
@@ -55,7 +55,7 @@ var options = {
   url: 'http://www.oakisstrong.com',
   filterTexts: ['Some unwanted text'],
   filterLocale: 'en',
-  filterKeywords: ['the']
+  filterKeywords: ['also']
 }
 
 var result = goldwasher(options, html);
@@ -65,7 +65,7 @@ var result = goldwasher(options, html);
   { 
     timestamp: 1402847736380,
     text: 'Oak is strong and also gives shade.',
-    keywords: { oak: 1, strong: 1, also: 1, gives: 1, shade: 1 },
+    keywords: { oak: 1, strong: 1, gives: 1, shade: 1 },
     href: 'http://www.oakisstrong.com/oak/strong',
     tag: 'h1',
     index: 0 

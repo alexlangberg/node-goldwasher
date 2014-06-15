@@ -1,18 +1,20 @@
 {
   "name": "node-goldwasher",
   "version": "0.0.0",
-  "description": "A simple scraper for node.",
+  "description": "Extraction of text and related metadata.",
   "main": "index.js",
   "scripts": {
     "test": "grunt"
   },
   "keywords": [
-    "scraper",
-    "scraping"
+    "text",
+    "extraction",
+    "mining",
+    "statistics",
+    "metadata"
   ],
   "author": "Alex Langberg",
   "license": "MIT",
-  "private": true,
   "devDependencies": {
     "grunt": "^0.4.4",
     "grunt-cli": "^0.1.13",
