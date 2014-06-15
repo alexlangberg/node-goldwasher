@@ -1,5 +1,5 @@
 {
-  "name": "node-goldwasher",
+  "name": "goldwasher",
   "version": "0.1.0",
   "description": "Extraction of text and related metadata.",
   "main": "index.js",
