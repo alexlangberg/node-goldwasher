@@ -33,7 +33,7 @@ The returned nuggets include the object properties:
 
 ## Installation
 ```
-npm install NOT_RELEASED_YET
+npm install goldwasher
 ```
 
 ## Options
