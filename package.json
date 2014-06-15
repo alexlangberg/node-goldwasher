@@ -37,7 +37,7 @@
     "test": "test"
   },
   "dependencies": {
-    "cheerio": "^0.16.0",
+    "cheerio": "^0.17.0",
     "underscore": "^1.6.0",
     "validator": "^3.12.0"
   },
