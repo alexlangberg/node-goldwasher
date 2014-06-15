@@ -38,11 +38,11 @@ npm install NOT_RELEASED_YET
 ```
 
 ## Options
-- targets: jquery/cheerio selection of target tags.
-- url: base url of links, for sites that use relative urls.
-- filterTexts: stop texts that should be excluded.
-- filterKeywords: stop words that should be excluded as keywords.
-- filterLocale: stop words from external json file (see the folder stop_words)
+- ```targets```: jquery/cheerio selection of target tags.
+- ```url```: base url of links, for sites that use relative urls.
+- ```filterTexts```: stop texts that should be excluded.
+- ```filterKeywords```: stop words that should be excluded as keywords.
+- ```filterLocale```: stop words from external json file (see the folder stop_words)
 
 ## Example
 ```javascript
