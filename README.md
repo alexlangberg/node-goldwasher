@@ -6,9 +6,9 @@
 [![Dependency Status](https://david-dm.org/alexlangberg/node-goldwasher.svg)](https://david-dm.org/alexlangberg/node-goldwasher)
 [![devDependency Status](https://david-dm.org/alexlangberg/node-goldwasher/dev-status.svg)](https://david-dm.org/alexlangberg/node-goldwasher#info=devDependencies)
 
-Basic text statistics with node. The purpose is to extract text information from html, usually a website, which will often have to be sanitized to be useful.
+Basic text statistics with node. The purpose is to extract text information from html, usually a website, which will often have to be sanitized and filtered to be useful.
 
-This module works by passing it the targets (html tags) from which the text should be extracted, along with either pure html as a string or a [cheerio](https://www.npmjs.org/package/cheerio) object. It will then return an array of nuggets (objects) of information - one per recognized tag. For each nugget, it will try to:
+This module works by passing it the targets (html tags) from which the text should be extracted, along with either pure HTML as a string (e.g. from [request](https://www.npmjs.org/package/request)) or a [cheerio](https://www.npmjs.org/package/cheerio) object. It will then return an array of nuggets (objects) of information - one per recognized tag. For each nugget, it will try to:
 
 1. Get the text of the tag and sanitize it, e.g. remove newlines.
 2. Optionally discard the nugget, if it matches an array of stop texts.
@@ -20,7 +20,7 @@ This module works by passing it the targets (html tags) from which the text shou
 8. Extract the tag type of the matched target.
 9. Index all nuggets in the order they were found.
 
-The returned objects include:
+The returned nuggets include the object properties:
 
 - ```timestamp``` - the exact time the tag was processed.
 - ```text``` - a sanitized version of the text of the tag.
