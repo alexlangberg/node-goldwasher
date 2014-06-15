@@ -22,15 +22,15 @@ This module works by passing it the targets (html tags) from which the text shou
 
 The returned objects include:
 
-- timestamp: the exact time the tag was processed.
-- text: a sanitized version of the text of the tag.
-- keywords: a count of each word in the text, special characters removed.
-- href: the closest link, determined in this order
+- ```timestamp``` - the exact time the tag was processed.
+- ```text``` - a sanitized version of the text of the tag.
+- ```keywords``` - a count of each word in the text, special characters removed.
+- ```href``` - the closest link, determined in this order
   1. Is the tag itself a link?
   2. Does the tag have a child node that is a link?
   3. Is there a link if we traverse up the DOM tree?
-- tag: the type of tag that was processed.
-- index: the index of the object, indicating the order in which tags were found.
+- ```tag``` - the type of tag that was processed.
+- ```index``` - the index of the object, indicating the order in which tags were found.
 
 ## Installation
 ```
@@ -38,11 +38,11 @@ npm install NOT_RELEASED_YET
 ```
 
 ## Options
-- ```targets```: jquery/cheerio selection of target tags.
-- ```url```: base url of links, for sites that use relative urls.
-- ```filterTexts```: stop texts that should be excluded.
-- ```filterKeywords```: stop words that should be excluded as keywords.
-- ```filterLocale```: stop words from external json file (see the folder stop_words)
+- ```targets``` - jquery/cheerio selection of target tags.
+- ```url``` - base url of links, for sites that use relative urls.
+- ```filterTexts``` - stop texts that should be excluded.
+- ```filterKeywords``` - stop words that should be excluded as keywords.
+- ```filterLocale``` - stop words from external json file (see the folder stop_words)
 
 ## Example
 ```javascript
