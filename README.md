@@ -49,11 +49,12 @@ var goldwasher = require('goldwasher');
 
 var html = '<a href="/oak/strong"><h1>Oak is strong and also gives shade.</h1></a>';
     html += '<h2><a href="http://www.catsanddogs.com/hate">Cats and dogs each hate the other.</a></h2>';
+    html += '<h2>Some unwanted text.</h2>';
 
 var options = {
   targets: 'h1, h2',
   url: 'http://www.oakisstrong.com',
-  filterTexts: ['Some unwanted text'],
+  filterTexts: ['Some unwanted text.'],
   filterLocale: 'en',
   filterKeywords: ['also']
 }
