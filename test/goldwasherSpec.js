@@ -68,24 +68,33 @@ describe('goldwasher', function() {
 		should.throw(function(){ goldwasher(options, testContentNoHref); });
 	});
 
-	it('returns nuggets with an array of keywords', function () {
-		parsed = goldwasher(testOptions, testContentNoHref);
-		parsed.should.all.have.property('keywords');
-		parsed[0].keywords.should.be.an('array');
+	it('throws if filterLocale is not a string', function () {
+		options = _({ filterLocale: [] }).extend(testOptions);
+		should.throw(function(){ goldwasher(options, testContentNoHref); });
 	});
 
-	it('returns nuggets with an array of sanitized keywords', function () {
+	it('throws if filterKeywords is not an array', function () {
+		options = _({ filterKeywords: 'foo' }).extend(testOptions);
+		should.throw(function(){ goldwasher(options, testContentNoHref); });
+	});
+
+	it('returns nuggets with an object with keywords count', function () {
 		parsed = goldwasher(testOptions, testContentNoHref);
-		parsed[0].keywords.should.eql([ 
-			'open', 
-			'the',
-			'crate', 
-			'but', 
-			'dont', 
-			'break', 
-			'the',
-			'glass' 
-		]);
+		parsed.should.all.have.property('keywords');
+		parsed[0].keywords.should.be.an('object');
+	});
+
+	it('returns nuggets with an object of sanitized keywords', function () {
+		parsed = goldwasher(testOptions, testContentNoHref);
+		parsed[0].keywords.should.eql({
+			'open': 1,
+			'the': 2,
+			'crate': 1,
+			'but': 1,
+			'dont': 1,
+			'break': 1,
+			'glass': 1
+		});
 	});
 
 	it('can sanitize by a standard set of locale stop words', function () {
@@ -95,35 +104,25 @@ describe('goldwasher', function() {
 			})
 			.extend(testOptions);
 		parsed = goldwasher(options, testContentNoHref);
-		parsed[0].keywords.should.eql([ 
-			'open', 
-			'crate',  
-			'break', 
-			'glass' 
-		]);
+		parsed[0].keywords.should.eql({ 
+			'open': 1,
+			'crate': 1,
+			'break': 1, 
+			'glass': 1
+		});
 	});
 
-	it('throws if filterLocale is not a string', function () {
-		options = _({ filterLocale: [] }).extend(testOptions);
-		should.throw(function(){ goldwasher(options, testContentNoHref); });
-	});
-
-	it('returns nuggets with an array of filtered keywords', function () {
+	it('returns nuggets with an object of filtered keywords', function () {
 		options = _({ filterKeywords: ['the'] }).extend(testOptions);
 		parsed = goldwasher(options, testContentNoHref);
-		parsed[0].keywords.should.eql([ 
-			'open', 
-			'crate', 
-			'but', 
-			'dont', 
-			'break', 
-			'glass' 
-		]);
-	});
-
-	it('throws if filterKeywords is not an array', function () {
-		options = _({ filterKeywords: 'foo' }).extend(testOptions);
-		should.throw(function(){ goldwasher(options, testContentNoHref); });
+		parsed[0].keywords.should.eql({
+			'open': 1,
+			'crate': 1,
+			'but': 1,
+			'dont': 1,
+			'break': 1,
+			'glass': 1
+		});
 	});
 
 	it('returns nuggets with a href', function () {
