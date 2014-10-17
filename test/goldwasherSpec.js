@@ -7,7 +7,7 @@ var validator = require('validator');
 var cheerio = require('cheerio');
 var goldwasher = require('../lib/goldwasher');
 
-var testOptions = { 
+var testOptions = {
 	targets:'h1, h2, a',
 	url: 'http://www.google.com'
 };
