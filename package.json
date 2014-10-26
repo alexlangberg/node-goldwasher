@@ -1,6 +1,6 @@
 {
   "name": "goldwasher",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "description": "Extraction of text and related metadata.",
   "main": "index.js",
   "scripts": {
