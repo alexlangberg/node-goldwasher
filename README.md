@@ -18,7 +18,7 @@ It works by passing it the targets (html tags) from which the text should be ext
 6. Optionally discard keywords that match an external array of keywords (see the folder stop_words).
 7. Extract the nearest URL of the closest link.
 8. Extract the tag type of the matched target.
-9. Index all nuggets in the order they were found.
+9. Index all nugget positions in the order they were found.
 
 The returned nuggets include the object properties:
 
@@ -30,7 +30,7 @@ The returned nuggets include the object properties:
   2. Does the tag have a child node that is a link?
   3. Is there a link if we traverse up the DOM tree?
 - ```tag``` - the type of tag that was processed.
-- ```index``` - the index of the object, indicating the order in which tags were found.
+- ```position``` - the position of the object, indicating the order in which tags were found.
 
 ## Installation
 ```
@@ -66,19 +66,29 @@ var result = goldwasher(options, html);
 [ 
   { 
     timestamp: 1402847736380,
-    text: 'Oak is strong and also gives shade.',
+    text: "Oak is strong and also gives shade.",
     keywords: { oak: 1, strong: 1, gives: 1, shade: 1 },
-    href: 'http://www.oakisstrong.com/oak/strong',
-    tag: 'h1',
-    index: 0 
+    keywords: [ 
+        {word: "oak", count: 1}, 
+        {word: "strong", count: 1}, 
+        {word: "gives", count: 1}, 
+        {word: "shade", count: 1}
+    ],
+    href: "http://www.oakisstrong.com/oak/strong",
+    tag: "h1",
+    position: 0 
    },
   { 
     timestamp: 1402847736381,
-    text: 'Cats and dogs each hate the other.',
-    keywords: { cats: 1, dogs: 1, hate: 1 },
-    href: 'http://www.catsanddogs.com/hate',
-    tag: 'h2',
-    index: 1 
+    text: "Cats and dogs each hate the other.",
+    keywords: [ 
+        {word: "cats", count: 1}, 
+        {word: "dogs", count: 1}, 
+        {word: "hate", count: 1} 
+    ],
+    href: "http://www.catsanddogs.com/hate",
+    tag: "h2",
+    position: 1 
   }
 ]
 */
