@@ -43,6 +43,7 @@
   "dependencies": {
     "cheerio": "^0.19.0",
     "underscore": "^1.8.3",
+    "underscore.string": "^3.0.3",
     "validator": "^3.39.0"
   },
   "repository": {
