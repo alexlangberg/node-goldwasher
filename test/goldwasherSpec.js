@@ -31,67 +31,73 @@ testContentNewlines += '</h1>';
 var parsed;
 var options;
 
-describe('goldwasher', function () {
+describe('goldwasher', function() {
 
-  it('returns an array of nuggets', function () {
-    parsed = goldwasher(testOptions, testContent);
+  it('runs', function(done) {
+    parsed = goldwasher(testContentNoHref, testOptions);
+    //console.log(parsed[0]);
+    done();
+  });
+
+  it('returns an array of nuggets', function() {
+    parsed = goldwasher(testContent);
     parsed.should.be.an('array');
   });
 
-  it('returns nuggets with a timestamp', function () {
-    parsed = goldwasher(testOptions, testContent);
+  it('returns nuggets with a timestamp', function() {
+    parsed = goldwasher(testContent, testOptions);
     parsed.should.all.have.property('timestamp');
     parsed[0].timestamp.should.be.a('number');
   });
 
-  it('returns nuggets with a text', function () {
-    parsed = goldwasher(testOptions, testContent);
+  it('returns nuggets with a text', function() {
+    parsed = goldwasher(testContent, testOptions);
     parsed.should.all.have.property('text');
     parsed[0].text.should.be.a('string');
   });
 
-  it('removes newlines from the text', function () {
-    parsed = goldwasher(testOptions, testContentNewlines);
+  it('removes newlines from the text', function() {
+    parsed = goldwasher(testContentNewlines, testOptions);
     parsed[0].text.should.eql('Add the sum to the product of these three');
   });
 
-  it('filters nuggets with stop texts', function () {
+  it('filters nuggets with stop texts', function() {
     var stopText = 'Oak is strong and also gives shade.';
     options = _({filterTexts: [stopText]}).extend(testOptions);
-    parsed = goldwasher(options, testContentHref);
+    parsed = goldwasher(testContentHref, options);
     parsed.should.not.contain.an.item
       .with.property('text', 'Oak is strong and also gives shade.');
   });
 
-  it('throws if filterTexts is not an array', function () {
+  it('throws if filterTexts is not an array', function() {
     options = _({filterTexts: 'foo'}).extend(testOptions);
-    should.throw(function () {
-      goldwasher(options, testContentNoHref);
+    should.throw(function() {
+      goldwasher(testContentNoHref, options);
     });
   });
 
-  it('throws if filterLocale is not a string', function () {
+  it('throws if filterLocale is not a string', function() {
     options = _({filterLocale: []}).extend(testOptions);
-    should.throw(function () {
-      goldwasher(options, testContentNoHref);
+    should.throw(function() {
+      goldwasher(testContentNoHref, options);
     });
   });
 
-  it('throws if filterKeywords is not an array', function () {
+  it('throws if filterKeywords is not an array', function() {
     options = _({filterKeywords: 'foo'}).extend(testOptions);
-    should.throw(function () {
-      goldwasher(options, testContentNoHref);
+    should.throw(function() {
+      goldwasher(testContentNoHref, options);
     });
   });
 
-  it('returns nuggets with objects with keyword counts', function () {
-    parsed = goldwasher(testOptions, testContentNoHref);
+  it('returns nuggets with objects with keyword counts', function() {
+    parsed = goldwasher(testContentNoHref, testOptions);
     parsed.should.all.have.property('keywords');
     parsed[0].keywords.should.be.an('array');
   });
 
-  it('returns nuggets with objects of sanitized keywords', function () {
-    parsed = goldwasher(testOptions, testContentNoHref);
+  it('returns nuggets with objects of sanitized keywords', function() {
+    parsed = goldwasher(testContentNoHref, testOptions);
     parsed[0].keywords.should.eql([
       {word: 'open', count: 1},
       {word: 'the', count: 2},
@@ -103,12 +109,12 @@ describe('goldwasher', function () {
     ]);
   });
 
-  it('can sanitize by a standard set of locale stop words', function () {
+  it('can sanitize by a standard set of locale stop words', function() {
     options = _({
       filterKeywords: ['the'],
       filterLocale: 'en'
     }).extend(testOptions);
-    parsed = goldwasher(options, testContentNoHref);
+    parsed = goldwasher(testContentNoHref, options);
     parsed[0].keywords.should.eql([
       {word: 'open', count: 1},
       {word: 'crate', count: 1},
@@ -117,9 +123,9 @@ describe('goldwasher', function () {
     ]);
   });
 
-  it('returns nuggets with an object of filtered keywords', function () {
+  it('returns nuggets with an object of filtered keywords', function() {
     options = _({filterKeywords: ['the']}).extend(testOptions);
-    parsed = goldwasher(options, testContentNoHref);
+    parsed = goldwasher(testContentNoHref, options);
     parsed[0].keywords.should.eql([
       {word: 'open', count: 1},
       {word: 'crate', count: 1},
@@ -130,38 +136,38 @@ describe('goldwasher', function () {
     ]);
   });
 
-  it('returns nuggets with a href', function () {
-    parsed = goldwasher(testOptions, testContentHref);
+  it('returns nuggets with a href', function() {
+    parsed = goldwasher(testContentHref, testOptions);
     parsed.should.all.have.property('href');
-    parsed.should.all.satisfy(function (nugget) {
+    parsed.should.all.satisfy(function(nugget) {
       return validator.isURL(nugget.href);
     });
   });
 
-  it('does not fail if no url is provided', function () {
-    parsed = goldwasher({targets: 'h1'}, testContentHref);
+  it('does not fail if no url is provided', function() {
+    parsed = goldwasher(testContentHref, {targets: 'h1'});
     parsed.should.all.have.property('href');
   });
 
-  it('returns nuggets with empty href if none is found', function () {
-    parsed = goldwasher(testOptions, testContentNoHref);
+  it('returns nuggets with empty href if none is found', function() {
+    parsed = goldwasher(testContentNoHref, testOptions);
     should.equal(parsed[0].href, null);
   });
 
-  it('returns nuggets with a tag', function () {
-    parsed = goldwasher(testOptions, testContent);
+  it('returns nuggets with a tag', function() {
+    parsed = goldwasher(testContent, testOptions);
     parsed.should.all.have.property('tag');
     parsed[0].tag.should.be.a('string');
   });
 
-  it('returns nuggets with a position of the count', function () {
-    parsed = goldwasher(testOptions, testContent);
+  it('returns nuggets with a position of the count', function() {
+    parsed = goldwasher(testContent, testOptions);
     parsed.should.all.have.property('position');
     parsed[0].position.should.be.a('number');
   });
 
-  it('can accept a cheerio object as a dom input', function () {
-    parsed = goldwasher(testOptions, cheerio.load(testContent));
+  it('can accept a cheerio object as a dom input', function() {
+    parsed = goldwasher(cheerio.load(testContent), testOptions);
     parsed.length.should.equal(2);
   });
 
