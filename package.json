@@ -11,7 +11,9 @@
     "extraction",
     "mining",
     "statistics",
-    "metadata"
+    "metadata",
+    "scraping",
+    "crawling"
   ],
   "author": "Alex Langberg",
   "license": "MIT",
