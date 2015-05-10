@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Index</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Index</h1>
+
+    
+
+
+    
+
+
+    <h3> </h3>
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <section>
+        <article><h1 id="node-goldwasher">node-goldwasher</h1>
+<p><a href="https://travis-ci.org/alexlangberg/node-goldwasher"><img src="http://img.shields.io/travis/alexlangberg/node-goldwasher.svg" alt="Build Status"></a>
+<a href="https://coveralls.io/r/alexlangberg/node-goldwasher?branch=master"><img src="http://img.shields.io/coveralls/alexlangberg/node-goldwasher.svg" alt="Coverage Status"></a>
+<a href="https://codeclimate.com/github/alexlangberg/node-goldwasher"><img src="http://img.shields.io/codeclimate/github/alexlangberg/node-goldwasher.svg" alt="Code Climate"></a>
+<a href="https://david-dm.org/alexlangberg/node-goldwasher"><img src="https://david-dm.org/alexlangberg/node-goldwasher.svg" alt="Dependency Status"></a>
+<a href="https://david-dm.org/alexlangberg/node-goldwasher#info=devDependencies"><img src="https://david-dm.org/alexlangberg/node-goldwasher/dev-status.svg" alt="devDependency Status"></a>
+<a href="https://www.npmjs.org/package/goldwasher"><img src="http://img.shields.io/npm/v/goldwasher.svg" alt="npm version"></a></p>
+<p><strong>NOTE:</strong> Version 3 has been a complete rewrite. UUIDs have been added and all parts can be selectively turned off by passing e.g. <code>href: false</code> as an option. The only breaking change should be that you have to switch the html and options parameters.</p>
+<p>The purpose module is to extract text information from HTML, usually a website, which will often have to be sanitized and filtered to be useful. This module takes a pile of HTML and washes out the parts you need as small, golden nuggets of text and related metadata, the default options referred to as &quot;goldwasher format&quot;:</p>
+<pre><code class="lang-javascript">{ 
+    timestamp: 1402847736380,
+    text: &quot;Oak is strong and also gives shade.&quot;,
+    keywords: [ 
+        {word: &quot;oak&quot;, count: 1}, 
+        {word: &quot;strong&quot;, count: 1}, 
+        {word: &quot;gives&quot;, count: 1}, 
+        {word: &quot;shade&quot;, count: 1}
+    ],
+    href: &quot;http://www.oakisstrong.com/oak/strong&quot;,
+    tag: &quot;h1&quot;,
+    position: 0,
+    uuid: &quot;808b7490-f743-11e4-90b2-df723554e9be&quot;
+}
+</code></pre>
+<p>It works by passing it the targets (html tags) from which the text should be extracted, along with either pure HTML as a string (e.g. from <a href="https://www.npmjs.org/package/request">request</a>) or a <a href="https://www.npmjs.org/package/cheerio">cheerio</a> object. It will then return an array of nuggets (objects) of information - one per recognized tag. For each nugget, it will try to:</p>
+<ol>
+<li>Get the text of the tag and sanitize it, e.g. remove newlines.</li>
+<li>Optionally discard the nugget, if it matches an array of stop texts.</li>
+<li>Get the exact time of processing.</li>
+<li>Extract a count of each word in the text as keywords.</li>
+<li>Optionally discard keywords that match an array of stop words.</li>
+<li>Optionally discard keywords that match an external array of keywords (see the folder stop_words).</li>
+<li>Extract the nearest URL of the closest link.</li>
+<li>Extract the tag type of the matched target.</li>
+<li>Assign a unique identifier (UUID V1).</li>
+<li>Index the nugget position in the order it was found found.</li>
+<li>Add the total nugget count.</li>
+</ol>
+<p>The returned nuggets include the object properties:</p>
+<ul>
+<li><code>timestamp</code> - the exact time the tag was processed.</li>
+<li><code>text</code> - a sanitized version of the text of the tag.</li>
+<li><code>keywords</code> - a count of each word in the text, special characters removed.</li>
+<li><code>href</code> - the closest link, the first that matches one of:<ol>
+<li>Is the tag itself a link?</li>
+<li>Does the tag have a child node that is a link?</li>
+<li>Is there a link if we traverse up the DOM tree?</li>
+<li>Is there an adjecent (sibling) link?</li>
+</ol>
+</li>
+<li><code>tag</code> - the type of tag that was processed.</li>
+<li><code>position</code> - the position of the object, indicating the order in which tags were found. 0-based.</li>
+<li><code>total</code> - total number of nuggets in relation to the position. 1-based.</li>
+<li><code>uuid</code> - a unique identifier (UUID V1).</li>
+</ul>
+<h2 id="installation">Installation</h2>
+<pre><code>npm install goldwasher
+</code></pre><h2 id="options">Options</h2>
+<ul>
+<li><code>targets</code> - jquery/cheerio selection of target tags.</li>
+<li><code>url</code> - base url of links, for sites that use relative urls.</li>
+<li><code>filterTexts</code> - stop texts that should be excluded.</li>
+<li><code>filterKeywords</code> - stop words that should be excluded as keywords.</li>
+<li><code>filterLocale</code> - stop words from external json file (see the folder stop_words).</li>
+<li>The rest can be selectively turned off by passing e.g. <code>href: false</code>.</li>
+</ul>
+<h2 id="example">Example</h2>
+<pre><code class="lang-javascript">var goldwasher = require(&#39;goldwasher&#39;);
+
+var html = &#39;&lt;a href=&quot;/oak/strong&quot;&gt;&lt;h1&gt;Oak is strong and also gives shade.&lt;/h1&gt;&lt;/a&gt;&#39;;
+    html += &#39;&lt;h2&gt;&lt;a href=&quot;http://www.catsanddogs.com/hate&quot;&gt;Cats and dogs each hate the other.&lt;/a&gt;&lt;/h2&gt;&#39;;
+    html += &#39;&lt;h2&gt;Some unwanted text.&lt;/h2&gt;&#39;;
+
+var options = {
+  targets: &#39;h1, h2&#39;,
+  url: &#39;http://www.oakisstrong.com&#39;,
+  filterTexts: [&#39;Some unwanted text.&#39;],
+  filterLocale: &#39;en&#39;,
+  filterKeywords: [&#39;also&#39;]
+}
+
+var result = goldwasher(html, options);
+
+/* result:
+[ 
+  { 
+    timestamp: 1402847736380,
+    text: &quot;Oak is strong and also gives shade.&quot;,
+    keywords: [ 
+        {word: &quot;oak&quot;, count: 1}, 
+        {word: &quot;strong&quot;, count: 1}, 
+        {word: &quot;gives&quot;, count: 1}, 
+        {word: &quot;shade&quot;, count: 1}
+    ],
+    href: &quot;http://www.oakisstrong.com/oak/strong&quot;,
+    tag: &quot;h1&quot;,
+    position: 0,
+    uuid: &quot;808b7490-f743-11e4-90b2-df723554e9be&quot;
+   },
+  { 
+    timestamp: 1402847736381,
+    text: &quot;Cats and dogs each hate the other.&quot;,
+    keywords: [ 
+        {word: &quot;cats&quot;, count: 1}, 
+        {word: &quot;dogs&quot;, count: 1}, 
+        {word: &quot;hate&quot;, count: 1} 
+    ],
+    href: &quot;http://www.catsanddogs.com/hate&quot;,
+    tag: &quot;h2&quot;,
+    position: 1,
+    uuid: &quot;a48fbb30-f743-11e4-96e6-7b423a412011&quot;
+  }
+]
+*/
+</code></pre>
+</article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Sun May 10 2015 23:28:21 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

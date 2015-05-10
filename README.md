@@ -6,9 +6,26 @@
 [![devDependency Status](https://david-dm.org/alexlangberg/node-goldwasher/dev-status.svg)](https://david-dm.org/alexlangberg/node-goldwasher#info=devDependencies)
 [![npm version](http://img.shields.io/npm/v/goldwasher.svg)](https://www.npmjs.org/package/goldwasher)
 
-**NOTE:** This module is no longer maintained for now. As it was mostly intented for scraping, some of the functionality has been moved to the scraper project [miningcompany](https://www.npmjs.org/package/miningcompany). Sanitization, flitering and counts can easily be done with [underscore.string](https://www.npmjs.org/package/underscore.string) and/or [validator](https://www.npmjs.org/package/validator).
+**NOTE:** Version 3 has been a complete rewrite. UUIDs have been added and all parts can be selectively turned off by passing e.g. ```href: false``` as an option. The only breaking change should be that you have to switch the html and options parameters.
 
-The purpose module is to extract text information from HTML, usually a website, which will often have to be sanitized and filtered to be useful. This module takes a pile of HTML and washes out the parts you need as small, golden nuggets of text and related metadata.
+The purpose module is to extract text information from HTML, usually a website, which will often have to be sanitized and filtered to be useful. This module takes a pile of HTML and washes out the parts you need as small, golden nuggets of text and related metadata, the default options referred to as "goldwasher format":
+
+```javascript
+{ 
+    timestamp: 1402847736380,
+    text: "Oak is strong and also gives shade.",
+    keywords: [ 
+        {word: "oak", count: 1}, 
+        {word: "strong", count: 1}, 
+        {word: "gives", count: 1}, 
+        {word: "shade", count: 1}
+    ],
+    href: "http://www.oakisstrong.com/oak/strong",
+    tag: "h1",
+    position: 0,
+    uuid: "808b7490-f743-11e4-90b2-df723554e9be"
+}
+```
 
 It works by passing it the targets (html tags) from which the text should be extracted, along with either pure HTML as a string (e.g. from [request](https://www.npmjs.org/package/request)) or a [cheerio](https://www.npmjs.org/package/cheerio) object. It will then return an array of nuggets (objects) of information - one per recognized tag. For each nugget, it will try to:
 
@@ -20,7 +37,9 @@ It works by passing it the targets (html tags) from which the text should be ext
 6. Optionally discard keywords that match an external array of keywords (see the folder stop_words).
 7. Extract the nearest URL of the closest link.
 8. Extract the tag type of the matched target.
-9. Index all nugget positions in the order they were found.
+9. Assign a unique identifier (UUID V1).
+10. Index the nugget position in the order it was found found.
+11. Add the total nugget count.
 
 The returned nuggets include the object properties:
 
@@ -31,8 +50,11 @@ The returned nuggets include the object properties:
   1. Is the tag itself a link?
   2. Does the tag have a child node that is a link?
   3. Is there a link if we traverse up the DOM tree?
+  4. Is there an adjecent (sibling) link?
 - ```tag``` - the type of tag that was processed.
-- ```position``` - the position of the object, indicating the order in which tags were found.
+- ```position``` - the position of the object, indicating the order in which tags were found. 0-based.
+- ```total``` - total number of nuggets in relation to the position. 1-based.
+- ```uuid``` - a unique identifier (UUID V1).
 
 ## Installation
 ```
@@ -44,7 +66,8 @@ npm install goldwasher
 - ```url``` - base url of links, for sites that use relative urls.
 - ```filterTexts``` - stop texts that should be excluded.
 - ```filterKeywords``` - stop words that should be excluded as keywords.
-- ```filterLocale``` - stop words from external json file (see the folder stop_words)
+- ```filterLocale``` - stop words from external json file (see the folder stop_words).
+- The rest can be selectively turned off by passing e.g. ```href: false```.
 
 ## Example
 ```javascript
@@ -62,14 +85,13 @@ var options = {
   filterKeywords: ['also']
 }
 
-var result = goldwasher(options, html);
+var result = goldwasher(html, options);
 
 /* result:
 [ 
   { 
     timestamp: 1402847736380,
     text: "Oak is strong and also gives shade.",
-    keywords: { oak: 1, strong: 1, gives: 1, shade: 1 },
     keywords: [ 
         {word: "oak", count: 1}, 
         {word: "strong", count: 1}, 
@@ -78,7 +100,8 @@ var result = goldwasher(options, html);
     ],
     href: "http://www.oakisstrong.com/oak/strong",
     tag: "h1",
-    position: 0 
+    position: 0,
+    uuid: "808b7490-f743-11e4-90b2-df723554e9be"
    },
   { 
     timestamp: 1402847736381,
@@ -90,7 +113,8 @@ var result = goldwasher(options, html);
     ],
     href: "http://www.catsanddogs.com/hate",
     tag: "h2",
-    position: 1 
+    position: 1,
+    uuid: "a48fbb30-f743-11e4-96e6-7b423a412011"
   }
 ]
 */
