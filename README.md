@@ -23,6 +23,7 @@ The purpose module is to extract text information from HTML, usually a website, 
     href: "http://www.oakisstrong.com/oak/strong",
     tag: "h1",
     position: 0,
+    total: 2,
     uuid: "808b7490-f743-11e4-90b2-df723554e9be"
 }
 ```
@@ -101,6 +102,7 @@ var result = goldwasher(html, options);
     href: "http://www.oakisstrong.com/oak/strong",
     tag: "h1",
     position: 0,
+    total: 2,
     uuid: "808b7490-f743-11e4-90b2-df723554e9be"
    },
   { 
@@ -114,6 +116,7 @@ var result = goldwasher(html, options);
     href: "http://www.catsanddogs.com/hate",
     tag: "h2",
     position: 1,
+    total: 2,
     uuid: "a48fbb30-f743-11e4-96e6-7b423a412011"
   }
 ]
