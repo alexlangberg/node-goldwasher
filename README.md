@@ -113,7 +113,7 @@ npm install goldwasher
 - ```filterTexts``` - stop texts that should be excluded.
 - ```filterKeywords``` - stop words that should be excluded as keywords.
 - ```filterLocale``` - stop words from external json file (see the folder stop_words).
-- ```format``` - output format ('json' or 'xml').
+- ```format``` - output format (```json``` or ```xml```).
 - The rest can be selectively turned off by passing e.g. ```href: false```.
 
 ## Example
