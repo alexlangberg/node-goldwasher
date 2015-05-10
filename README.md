@@ -10,6 +10,7 @@
 
 The purpose module is to extract text information from HTML, usually a website, which will often have to be sanitized and filtered to be useful. This module takes a pile of HTML and washes out the parts you need as small, golden nuggets of text and related metadata, the default options referred to as "goldwasher format":
 
+JSON format:
 ```javascript
 { 
     timestamp: 1402847736380,
@@ -26,6 +27,50 @@ The purpose module is to extract text information from HTML, usually a website, 
     total: 2,
     uuid: "808b7490-f743-11e4-90b2-df723554e9be"
 }
+```
+
+XML format:
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<goldwasher>
+    <nugget>
+        <href>/oak/strong</href>
+        <tag>h1</tag>
+        <text>Oak is strong and also gives shade.</text>
+        <position>0</position>
+        <timestamp>1431296135800</timestamp>
+        <uuid>14eefda0-f762-11e4-a0b3-d5647c4f7651</uuid>
+        <total>3</total>
+        <keyword>
+            <word>oak</word>
+            <count>1</count>
+        </keyword>
+        <keyword>
+            <word>is</word>
+            <count>1</count>
+        </keyword>
+        <keyword>
+            <word>strong</word>
+            <count>1</count>
+        </keyword>
+        <keyword>
+            <word>and</word>
+            <count>1</count>
+        </keyword>
+        <keyword>
+            <word>also</word>
+            <count>1</count>
+        </keyword>
+        <keyword>
+            <word>gives</word>
+            <count>1</count>
+        </keyword>
+        <keyword>
+            <word>shade</word>
+            <count>1</count>
+        </keyword>
+    </nugget>
+<goldwasher>
 ```
 
 It works by passing it the targets (html tags) from which the text should be extracted, along with either pure HTML as a string (e.g. from [request](https://www.npmjs.org/package/request)) or a [cheerio](https://www.npmjs.org/package/cheerio) object. It will then return an array of nuggets (objects) of information - one per recognized tag. For each nugget, it will try to:
@@ -68,6 +113,7 @@ npm install goldwasher
 - ```filterTexts``` - stop texts that should be excluded.
 - ```filterKeywords``` - stop words that should be excluded as keywords.
 - ```filterLocale``` - stop words from external json file (see the folder stop_words).
+- ```format``` - output format ('json' or 'xml').
 - The rest can be selectively turned off by passing e.g. ```href: false```.
 
 ## Example

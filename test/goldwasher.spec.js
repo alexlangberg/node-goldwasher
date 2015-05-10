@@ -208,3 +208,10 @@ describe('validation', function() {
     done();
   });
 });
+
+describe('conversion', function() {
+  it('can output as XML', function() {
+    parsed = goldwasher(testContentHref, {format: 'xml'});
+    parsed.should.all.be.a('string');
+  });
+});
