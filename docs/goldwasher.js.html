@@ -25,7 +25,8 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
+            <pre class="prettyprint source linenums"><code>// jscs:disable requirePaddingNewLinesAfterBlocks
+// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 'use strict';
 
 var v = require('validator');
@@ -35,7 +36,6 @@ var Joi = require('joi');
 var cheerio = require('cheerio');
 var uuid = require('node-uuid');
 var js2xmlparser = require('js2xmlparser');
-var RSS = require('rss');
 var Feed = require('feed');
 
 /**
@@ -59,11 +59,10 @@ var getHtml = function(html) {
  */
 var getOptions = function(options) {
   var schema = Joi.object().keys({
-    feedUrl: Joi.string(),
     filterKeywords: Joi.array(),
     filterLocale: Joi.string().valid('en'),
     filterTexts: Joi.array(),
-    format: Joi.string().valid('json', 'xml', 'rss'),
+    format: Joi.string().valid('json', 'xml', 'atom', 'rss'),
     href: Joi.boolean(),
     keywords: Joi.boolean(),
     limit: Joi.number().integer(),
@@ -91,7 +90,6 @@ var getOptions = function(options) {
 
   // overwrite default options if options object is provided
   return R.merge({
-    feedUrl: null,
     filterKeywords: [],
     filterLocale: false,
     filterTexts: [],
@@ -170,13 +168,6 @@ var getMetaTag = function($, name) {
   }).map(function() {
     return $(this).attr('content');
   }).get().join();
-};
-
-var getMetaTagList = function($, name) {
-  var list = getMetaTag($, name).split(',');
-  return R.map(function(item) {
-    return S(item).trim().s;
-  }, list);
 };
 
 /**
@@ -264,6 +255,23 @@ var getKeywords = function(text, blacklist) {
   return countKeywords(text, filterKeywords(keywords, blacklist));
 };
 
+var getMeta = function($, options) {
+  return {
+    author: getMetaTag($, 'author'),
+    description: getMetaTag($, 'description'),
+    url: options.url,
+    time: Date.now(),
+    title: getText($('title'))
+  };
+};
+
+var getNuggetsKeywordStrings = R.pipe(
+  R.map(function(nugget) { return nugget.keywords; }),
+  R.flatten(),
+  R.map(function(keyword) { return keyword.word; }),
+  R.uniq()
+);
+
 /**
  * Converts a batch of nuggets to a string of XML.
  * @param nuggets
@@ -278,33 +286,24 @@ var convertToXml = function(nuggets) {
   return js2xmlparser('goldwasher', {nugget: nuggets});
 };
 
-var convertToRss = function(nuggets, meta) {
+var convertToFeed = function(nuggets, meta, format) {
   var feed = new Feed({
-    author: {
-      name: meta.author,
-      email: 'lol',
-      link: meta.url
-    },
-    custom_namespaces: meta.custom_namespaces,
     description: meta.description,
     link: meta.url,
-    title: meta.title,
-    updated: meta.time,
-    copyright: 'lol',
-    image: 'lol.com/img.png'
+    title: meta.title
   });
 
-  //var keywords = R.map(function(nugget) {
-  //  return keyWords.
-  //}, nuggets);
+  R.forEach(function(keyword) {
+    feed.addCategory(keyword);
+  }, getNuggetsKeywordStrings(nuggets));
 
   R.forEach(function(nugget) {
     feed.addItem({
-      author: {
+      author: [{
         name: meta.author,
-        email: 'lol',
         link: meta.url
-      },
+      }],
+      date: new Date(),
       description: nugget.text,
       guid: nugget.href,
       link: nugget.href,
@@ -312,52 +311,7 @@ var convertToRss = function(nuggets, meta) {
     });
   }, nuggets);
 
-  //console.log(feed);
-  feed.addCategory('Technologie');
-  console.log(feed.render('rss-2.0'));
-
-  //var feed = new RSS({
-  //  author: meta.author,
-  //  categories: meta.categories,
-  //  custom_namespaces: meta.custom_namespaces,
-  //  description: meta.description,
-  //  docs: meta.custom_namespaces.goldwasher,
-  //  feed_url: meta.feedUrl,
-  //  generator: 'goldwasher with RSS for Node',
-  //  pubDate: meta.time,
-  //  site_url: meta.url,
-  //  title: meta.title
-  //});
-  //
-  //R.forEach(function(item) {
-  //  var keyWords = R.map(function(keyWord) {
-  //    return keyWord.word;
-  //  }, item.keywords);
-  //  feed.item({
-  //    title:  item.text,
-  //    description: item.text,
-  //    url: item.href,
-  //    categories: keyWords,
-  //    date: item.timestamp
-  //  });
-  //}, nuggets);
-  //
-  //return feed.xml();
-};
-
-var getMeta = function($, options) {
-  return {
-    author: getMetaTag($, 'author'),
-    categories: getMetaTagList($, 'keywords'),
-    custom_namespaces: {
-      goldwasher: 'https://github.com/alexlangberg/node-goldwasher'
-    },
-    description: getMetaTag($, 'description'),
-    feedUrl: options.feedUrl,
-    url: options.url,
-    time: Date.now(),
-    title: getText($('title'))
-  };
+  return feed.render(format);
 };
 
 /**
@@ -447,8 +401,12 @@ var goldwasher = function(html, userOptions) {
     return convertToXml(nuggets);
   }
 
+  if (options.format === 'atom') {
+    return convertToFeed(nuggets, meta, 'atom-1.0');
+  }
+
   if (options.format === 'rss') {
-    return convertToRss(nuggets, meta);
+    return convertToFeed(nuggets, meta, 'rss-2.0');
   }
 
   return nuggets;
@@ -470,7 +428,7 @@ module.exports = goldwasher;</code></pre>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Mon May 11 2015 23:05:31 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Tue May 12 2015 00:07:09 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
