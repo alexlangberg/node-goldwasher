@@ -36,6 +36,14 @@ var testContentNewlines = '<h1>' +
                           '\n\nAdd the&nbsp; sum\n' +
                           ' to the\n\n product\n\n\n of these three\n' +
                           '</h1>';
+var testContentMeta = '<html><head>' +
+                      '<title>foo title</title>' +
+                      '<meta name="description" content="Foo Bar Baz">' +
+                      '<meta name="keywords" content="foo, bar, baz">' +
+                      '<meta name="author" content="Baz Barfoo">' +
+                      '</head><body>' +
+                      testContentHref +
+                      '</body></html>';
 var parsed;
 var options;
 
@@ -224,8 +232,72 @@ describe('validation', function() {
 });
 
 describe('conversion', function() {
+
+  //it('can get meta data', function() {
+  //  parsed = goldwasher(testContentMeta, {
+  //    format: 'rss',
+  //    url: 'foo.com',
+  //    feedUrl: 'foo.com/feed'
+  //  });
+  //  parsed.should.all.be.a('string');
+  //});
+
   it('can output as XML', function() {
     parsed = goldwasher(testContentHref, {format: 'xml'});
     parsed.should.all.be.a('string');
+    parsed.should.contain('<?xml version="1.0" encoding="UTF-8"?>');
+    parsed.should.contain('<nugget>');
+    parsed.should.contain('<href>/oak/strong</href>');
+    parsed.should.contain('<tag>h1</tag>');
+    parsed.should.contain('<text>Oak is strong and also gives shade.</text>');
+    parsed.should.contain('<position>0</position>');
+    parsed.should.contain('<timestamp>');
+    parsed.should.contain('<uuid>');
+    parsed.should.contain('<total>3</total>');
+    parsed.should.contain('<keyword>');
+    parsed.should.contain('<word>oak</word>');
+    parsed.should.contain('<count>1</count>');
+  });
+
+  it('can output as RSS', function() {
+    parsed = goldwasher(testContentMeta, {
+      format: 'rss',
+      url: 'foo.com',
+      feedUrl: 'foo.com/feed'
+    });
+    parsed.should.all.be.a('string');
+    parsed.should.contain('<?xml version="1.0" encoding="UTF-8"?>');
+    parsed.should.contain('<channel>');
+    parsed.should.contain('<title><![CDATA[foo title]]></title>');
+    parsed.should.contain(
+      '<description><![CDATA[Foo Bar Baz]]></description>'
+    );
+    parsed.should.contain('<link>foo.com</link>');
+    parsed.should.contain(
+      '<generator>goldwasher with RSS for Node</generator>'
+    );
+    parsed.should.contain(
+      '<atom:link href="foo.com/feed" rel="self" type="application/rss+xml"/>'
+    );
+    parsed.should.contain('<author><![CDATA[Baz Barfoo]]></author>');
+    parsed.should.contain(
+      '<docs>https://github.com/alexlangberg/node-goldwasher</docs>'
+    );
+    parsed.should.contain('<category><![CDATA[foo]]></category>');
+    parsed.should.contain('<item>');
+    parsed.should.contain(
+      '<title><![CDATA[Oak is strong and also gives shade.]]></title>'
+    );
+    parsed.should.contain(
+      '<description>' +
+      '<![CDATA[Oak is strong and also gives shade.]]>' +
+      '</description>'
+    );
+    parsed.should.contain('<link>foo.com/oak/strong</link>');
+    parsed.should.contain(
+      '<guid isPermaLink="true">foo.com/oak/strong</guid>'
+    );
+    parsed.should.contain('<category><![CDATA[oak]]></category>');
+    parsed.should.contain('<dc:creator><![CDATA[Baz Barfoo]]></dc:creator>');
   });
 });
