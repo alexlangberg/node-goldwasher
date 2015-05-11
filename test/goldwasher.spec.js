@@ -157,6 +157,13 @@ describe('filtering', function() {
       {word: 'glass', count: 1}
     ]);
   });
+
+  it('can search for strings', function(done) {
+    options = R.merge({containsTexts: ['pipe began', 'crate']}, testOptions);
+    parsed = goldwasher(testContentHref, options);
+    parsed.length.should.equal(1);
+    done();
+  });
 });
 
 describe('validation', function() {
