@@ -259,31 +259,47 @@ describe('conversion', function() {
     parsed.should.contain('<count>1</count>');
   });
 
-  it('can output as RSS', function() {
+  it('can output as Atom feed', function() {
     parsed = goldwasher(testContentMeta, {
-      format: 'rss',
-      url: 'foo.com',
-      feedUrl: 'foo.com/feed'
+      format: 'atom',
+      url: 'foo.com'
     });
     parsed.should.all.be.a('string');
-    parsed.should.contain('<?xml version="1.0" encoding="UTF-8"?>');
+    parsed.should.contain('<?xml version="1.0" encoding="utf-8"?>');
+    parsed.should.contain('<feed');
+    parsed.should.contain('<title>foo title</title>');
+    parsed.should.contain('<subtitle>Foo Bar Baz</subtitle>');
+    parsed.should.contain('<link rel="alternate" href="foo.com"/>');
+    parsed.should.contain('<name>Baz Barfoo</name>');
+    parsed.should.contain('<category term="oak">');
+    parsed.should.contain('<entry>');
+    parsed.should.contain(
+      '<title type="html">' +
+      '<![CDATA[Oak is strong and also gives shade.]]>' +
+      '</title>'
+    );
+    parsed.should.contain(
+      '<summary type="html">' +
+      '<![CDATA[Oak is strong and also gives shade.]]>' +
+      '</summary>'
+    );
+    parsed.should.contain('<link href="foo.com/oak/strong">');
+    parsed.should.contain('<id>foo.com/oak/strong</id>');
+  });
+
+  it('can output as RSS feed', function() {
+    parsed = goldwasher(testContentMeta, {
+      format: 'rss',
+      url: 'foo.com'
+    });
+    parsed.should.all.be.a('string');
+    parsed.should.contain('<?xml version="1.0" encoding="utf-8"?>');
     parsed.should.contain('<channel>');
-    parsed.should.contain('<title><![CDATA[foo title]]></title>');
-    parsed.should.contain(
-      '<description><![CDATA[Foo Bar Baz]]></description>'
-    );
+    parsed.should.contain('<title>foo title</title>');
+    parsed.should.contain('<description>Foo Bar Baz</description>');
     parsed.should.contain('<link>foo.com</link>');
-    parsed.should.contain(
-      '<generator>goldwasher with RSS for Node</generator>'
-    );
-    parsed.should.contain(
-      '<atom:link href="foo.com/feed" rel="self" type="application/rss+xml"/>'
-    );
-    parsed.should.contain('<author><![CDATA[Baz Barfoo]]></author>');
-    parsed.should.contain(
-      '<docs>https://github.com/alexlangberg/node-goldwasher</docs>'
-    );
-    parsed.should.contain('<category><![CDATA[foo]]></category>');
+    parsed.should.contain('<name>Baz Barfoo</name>');
+    parsed.should.contain('<category>oak</category>');
     parsed.should.contain('<item>');
     parsed.should.contain(
       '<title><![CDATA[Oak is strong and also gives shade.]]></title>'
@@ -294,10 +310,6 @@ describe('conversion', function() {
       '</description>'
     );
     parsed.should.contain('<link>foo.com/oak/strong</link>');
-    parsed.should.contain(
-      '<guid isPermaLink="true">foo.com/oak/strong</guid>'
-    );
-    parsed.should.contain('<category><![CDATA[oak]]></category>');
-    parsed.should.contain('<dc:creator><![CDATA[Baz Barfoo]]></dc:creator>');
+    parsed.should.contain('<guid>foo.com/oak/strong</guid>');
   });
 });
