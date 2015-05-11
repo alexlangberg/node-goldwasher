@@ -10,7 +10,7 @@
 
 The purpose module is to extract text information from HTML, usually a website, which will often have to be sanitized and filtered to be useful. This module takes a pile of HTML and washes out the parts you need as small, golden nuggets of text and related metadata, the default options referred to as "goldwasher format":
 
-JSON format:
+JSON format (see additional formats in the bottom):
 ```javascript
 { 
     timestamp: 1402847736380,
@@ -27,50 +27,6 @@ JSON format:
     total: 2,
     uuid: "808b7490-f743-11e4-90b2-df723554e9be"
 }
-```
-
-XML format:
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<goldwasher>
-    <nugget>
-        <href>/oak/strong</href>
-        <tag>h1</tag>
-        <text>Oak is strong and also gives shade.</text>
-        <position>0</position>
-        <timestamp>1431296135800</timestamp>
-        <uuid>14eefda0-f762-11e4-a0b3-d5647c4f7651</uuid>
-        <total>3</total>
-        <keyword>
-            <word>oak</word>
-            <count>1</count>
-        </keyword>
-        <keyword>
-            <word>is</word>
-            <count>1</count>
-        </keyword>
-        <keyword>
-            <word>strong</word>
-            <count>1</count>
-        </keyword>
-        <keyword>
-            <word>and</word>
-            <count>1</count>
-        </keyword>
-        <keyword>
-            <word>also</word>
-            <count>1</count>
-        </keyword>
-        <keyword>
-            <word>gives</word>
-            <count>1</count>
-        </keyword>
-        <keyword>
-            <word>shade</word>
-            <count>1</count>
-        </keyword>
-    </nugget>
-<goldwasher>
 ```
 
 It works by passing it either pure HTML as a string (e.g. from [request](https://www.npmjs.org/package/request)) or a [cheerio](https://www.npmjs.org/package/cheerio) object, usually along with a [cheerio](https://www.npmjs.org/package/cheerio) (jQuery) selector (html tags) from which the text should be extracted, along with other options. It will then return an array of nuggets (objects) of information - one per recognized tag. For each nugget, it will try to:
@@ -110,6 +66,7 @@ npm install goldwasher
 ## Options
 - ```selector``` - cheerio (jQuery) selector, a selection of target tags.
 - ```search``` - only pick results containing these terms. Not case or special character sensitive (sluggified search).
+- ```limit``` - limit number of results.
 - ```url``` - base url of links, for sites that use relative urls.
 - ```filterTexts``` - stop texts that should be excluded.
 - ```filterKeywords``` - stop words that should be excluded as keywords.
@@ -168,4 +125,68 @@ var result = goldwasher(html, options);
   }
 ]
 */
+```
+
+## Formats
+**JSON:**
+```javascript
+{ 
+    timestamp: 1402847736380,
+    text: "Oak is strong and also gives shade.",
+    keywords: [ 
+        {word: "oak", count: 1}, 
+        {word: "strong", count: 1}, 
+        {word: "gives", count: 1}, 
+        {word: "shade", count: 1}
+    ],
+    href: "http://www.oakisstrong.com/oak/strong",
+    tag: "h1",
+    position: 0,
+    total: 2,
+    uuid: "808b7490-f743-11e4-90b2-df723554e9be"
+}
+```
+
+**XML:**
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<goldwasher>
+    <nugget>
+        <href>/oak/strong</href>
+        <tag>h1</tag>
+        <text>Oak is strong and also gives shade.</text>
+        <position>0</position>
+        <timestamp>1431296135800</timestamp>
+        <uuid>14eefda0-f762-11e4-a0b3-d5647c4f7651</uuid>
+        <total>3</total>
+        <keyword>
+            <word>oak</word>
+            <count>1</count>
+        </keyword>
+        <keyword>
+            <word>is</word>
+            <count>1</count>
+        </keyword>
+        <keyword>
+            <word>strong</word>
+            <count>1</count>
+        </keyword>
+        <keyword>
+            <word>and</word>
+            <count>1</count>
+        </keyword>
+        <keyword>
+            <word>also</word>
+            <count>1</count>
+        </keyword>
+        <keyword>
+            <word>gives</word>
+            <count>1</count>
+        </keyword>
+        <keyword>
+            <word>shade</word>
+            <count>1</count>
+        </keyword>
+    </nugget>
+<goldwasher>
 ```

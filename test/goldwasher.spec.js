@@ -164,6 +164,13 @@ describe('filtering', function() {
     parsed.length.should.equal(1);
     done();
   });
+
+  it('can limit results', function(done) {
+    options = R.merge({limit: 2}, testOptions);
+    parsed = goldwasher(testContentHref, options);
+    parsed.length.should.equal(2);
+    done();
+  });
 });
 
 describe('validation', function() {
