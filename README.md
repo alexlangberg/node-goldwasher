@@ -6,7 +6,7 @@
 [![devDependency Status](https://david-dm.org/alexlangberg/node-goldwasher/dev-status.svg)](https://david-dm.org/alexlangberg/node-goldwasher#info=devDependencies)
 [![npm version](http://img.shields.io/npm/v/goldwasher.svg)](https://www.npmjs.org/package/goldwasher)
 
-**NOTE:** Version 3 has been a complete rewrite. UUIDs have been added and all parts can be selectively turned off by passing e.g. ```href: false``` as an option. The only breaking change should be that you have to switch the html and options parameters.
+**NOTE:** Version 3 has been a complete rewrite. UUIDs have been added and all parts can be selectively turned off by passing e.g. ```href: false``` as an option. The only breaking change should be that you have to switch the html and options parameters and rename the "targets" parameter to "selector".
 
 The purpose module is to extract text information from HTML, usually a website, which will often have to be sanitized and filtered to be useful. This module takes a pile of HTML and washes out the parts you need as small, golden nuggets of text and related metadata, the default options referred to as "goldwasher format":
 
@@ -108,8 +108,9 @@ npm install goldwasher
 ```
 
 ## Options
-- ```targets``` - jquery/cheerio selection of target tags.
-- ```url``` - base url of links, for sites that use relative urls.
+- ```url``` - Required: base url of links, for sites that use relative urls.
+- ```selector``` - jquery/cheerio selection of target tags.
+- ```search``` - only pick results containing these terms. Not case or special character sensitive (sluggified search).
 - ```filterTexts``` - stop texts that should be excluded.
 - ```filterKeywords``` - stop words that should be excluded as keywords.
 - ```filterLocale``` - stop words from external json file (see the folder stop_words).
@@ -125,7 +126,7 @@ var html = '<a href="/oak/strong"><h1>Oak is strong and also gives shade.</h1></
     html += '<h2>Some unwanted text.</h2>';
 
 var options = {
-  targets: 'h1, h2',
+  selector: 'h1, h2',
   url: 'http://www.oakisstrong.com',
   filterTexts: ['Some unwanted text.'],
   filterLocale: 'en',

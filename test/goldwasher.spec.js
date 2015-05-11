@@ -9,7 +9,7 @@ var goldwasher = require('../lib/goldwasher');
 var R = require('ramda');
 
 var testOptions = {
-  targets: 'h1, h2, a',
+  selector: 'h1, h2, a',
   url: 'http://www.google.com'
 };
 var testContent = '<h1>foo</h1><h1>bar</h1>';
@@ -159,7 +159,7 @@ describe('filtering', function() {
   });
 
   it('can search for strings', function(done) {
-    options = R.merge({containsTexts: ['pipe began', 'crate']}, testOptions);
+    options = R.merge({search: ['pipe began', 'crate']}, testOptions);
     parsed = goldwasher(testContentHref, options);
     parsed.length.should.equal(1);
     done();
@@ -195,7 +195,7 @@ describe('validation', function() {
   });
 
   it('does not fail if no url is provided', function() {
-    parsed = goldwasher(testContentHref, {targets: 'h1'});
+    parsed = goldwasher(testContentHref, {selector: 'h1'});
     parsed.should.all.have.property('href');
   });
 
