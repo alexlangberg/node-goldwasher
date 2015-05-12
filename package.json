@@ -50,7 +50,7 @@
     "joi": "^6.4.1",
     "js2xmlparser": "^0.1.9",
     "node-uuid": "^1.4.3",
-    "ramda": "^0.13.0",
+    "ramda": "^0.14.0",
     "string": "^3.1.1",
     "validator": "^3.39.0"
   },
