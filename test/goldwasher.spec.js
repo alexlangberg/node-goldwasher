@@ -235,7 +235,7 @@ describe('conversion', function() {
 
   //it('can get meta data', function() {
   //  parsed = goldwasher(testContentMeta, {
-  //    format: 'rss',
+  //    output: 'rss',
   //    url: 'foo.com',
   //    feedUrl: 'foo.com/feed'
   //  });
@@ -243,7 +243,7 @@ describe('conversion', function() {
   //});
 
   it('can output as XML', function() {
-    parsed = goldwasher(testContentHref, {format: 'xml'});
+    parsed = goldwasher(testContentHref, {output: 'xml'});
     parsed.should.all.be.a('string');
     parsed.should.contain('<?xml version="1.0" encoding="UTF-8"?>');
     parsed.should.contain('<nugget>');
@@ -261,9 +261,10 @@ describe('conversion', function() {
 
   it('can output as Atom feed', function() {
     parsed = goldwasher(testContentMeta, {
-      format: 'atom',
+      output: 'atom',
       url: 'foo.com'
     });
+
     parsed.should.all.be.a('string');
     parsed.should.contain('<?xml version="1.0" encoding="utf-8"?>');
     parsed.should.contain('<feed');
@@ -289,9 +290,10 @@ describe('conversion', function() {
 
   it('can output as RSS feed', function() {
     parsed = goldwasher(testContentMeta, {
-      format: 'rss',
+      output: 'rss',
       url: 'foo.com'
     });
+
     parsed.should.all.be.a('string');
     parsed.should.contain('<?xml version="1.0" encoding="utf-8"?>');
     parsed.should.contain('<channel>');

@@ -58,6 +58,8 @@ The returned nuggets include the object properties:
 - ```total``` - total number of nuggets in relation to the position. 1-based.
 - ```uuid``` - a unique identifier (UUID V1).
 
+Alternatively, the output can be configured as XML, Atom or RSS format with the ```output``` option.
+
 ## Installation
 ```
 npm install goldwasher
@@ -71,7 +73,7 @@ npm install goldwasher
 - ```filterTexts``` - stop texts that should be excluded.
 - ```filterKeywords``` - stop words that should be excluded as keywords.
 - ```filterLocale``` - stop words from external json file (see the folder stop_words).
-- ```format``` - output format (```json``` or ```xml```).
+- ```format``` - output format (```json```, ```xml```, ```atom``` or ```rss```).
 - The rest can be selectively turned off by passing e.g. ```href: false```.
 
 ## Example
@@ -127,7 +129,7 @@ var result = goldwasher(html, options);
 */
 ```
 
-## Formats
+## Output formats
 **JSON:**
 ```javascript
 { 
@@ -189,4 +191,70 @@ var result = goldwasher(html, options);
         </keyword>
     </nugget>
 <goldwasher>
+```
+
+**Atom:**
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>foo title</title>
+    <link>foo.com</link>
+    <updated>2015-05-12T16:12:45Z</updated>
+    <link rel="alternate" href="foo.com"/>
+    <subtitle>Foo Bar Baz</subtitle>
+    <generator>Feed for Node.js</generator>
+    <category term="oak"></category>
+    <category term="is"></category>
+    <category term="strong"></category>
+    <category term="and"></category>
+    <category term="also"></category>
+    <category term="gives"></category>
+    <category term="shade"></category>
+    <entry>
+        <title type="html"><![CDATA[Oak is strong and also gives shade.]]></title>
+        <id>foo.com/oak/strong</id>
+        <link href="foo.com/oak/strong">
+        </link>
+        <updated>2015-05-12T16:12:45Z</updated>
+        <summary type="html"><![CDATA[Oak is strong and also gives shade.]]></summary>
+        <author>
+            <name>Baz Barfoo</name>
+            <uri>foo.com</uri>
+        </author>
+    </entry>
+</feed>
+```
+
+**RSS:**
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+    <channel>
+        <title>foo title</title>
+        <description>Foo Bar Baz</description>
+        <link>foo.com</link>
+        <lastBuildDate>Tue, 12 May 2015 16:15:03 GMT</lastBuildDate>
+        <docs>http://blogs.law.harvard.edu/tech/rss</docs>
+        <generator>Feed for Node.js</generator>
+        <category>oak</category>
+        <category>is</category>
+        <category>strong</category>
+        <category>and</category>
+        <category>also</category>
+        <category>gives</category>
+        <category>shade</category>
+        <item>
+            <title><![CDATA[Oak is strong and also gives shade.]]></title>
+            <link>foo.com/oak/strong</link>
+            <guid>foo.com/oak/strong</guid>
+            <pubDate>Tue, 12 May 2015 16:15:03 GMT</pubDate>
+            <description><![CDATA[Oak is strong and also gives shade.]]></description>
+            <content:encoded/>
+            <author>
+                <name>Baz Barfoo</name>
+                <link>foo.com</link>
+            </author>
+        </item>
+    </channel>
+</rss>
 ```
