@@ -44,6 +44,24 @@ var testContentMeta = '<html><head>' +
                       '</head><body>' +
                       testContentHref +
                       '</body></html>';
+var testContentXmlGold = '<?xml version="1.0" encoding="UTF-8"?>' +
+                     '<goldwasher><nugget>' +
+                     '<href>/oak/strong</href>' +
+                     '<tag>h1</tag>' +
+                     '<text>Oak is strong and also gives shade.</text>' +
+                     '<position>0</position>' +
+                     '<timestamp>1431296135800</timestamp>' +
+                     '<uuid>14eefda0-f762-11e4-a0b3-d5647c4f7651</uuid>' +
+                     '<total>3</total>' +
+                     '<keyword>' +
+                       '<word>oak</word>' +
+                       '<count>1</count>' +
+                     '</keyword>' +
+                     '</nugget><goldwasher>';
+var testContentXml = '<?xml version="1.0" encoding="UTF-8"?>' +
+                     '<foo><bar>' +
+                     '<baz>Oak is strong and also gives shade.</baz>' +
+                     '</bar><foo>';
 var parsed;
 var options;
 
@@ -118,11 +136,6 @@ describe('returned objects', function() {
     ]);
   });
 
-  it('returns nuggets with empty href if none is found', function() {
-    parsed = goldwasher(testContentNoHref, testOptions);
-    should.equal(parsed[0].href, null);
-  });
-
   it('returns nuggets with an object of filtered keywords', function() {
     options = R.merge({filterKeywords: ['the']}, testOptions);
     parsed = goldwasher(testContentNoHref, options);
@@ -183,6 +196,14 @@ describe('filtering', function() {
 
 describe('validation', function() {
 
+  it('throws on unknown input types', function(done) {
+    should.throw(function() {
+      parsed = goldwasher('foo', testOptions);
+    });
+
+    done();
+  });
+
   it('can accept a cheerio object as a dom input', function() {
     parsed = goldwasher(cheerio.load(testContent), testOptions);
     parsed.length.should.equal(2);
@@ -213,34 +234,57 @@ describe('validation', function() {
     parsed = goldwasher(testContentHref, {selector: 'h1'});
     parsed.should.all.have.property('href');
   });
-
-  it('runs with all settings off', function(done) {
-    var options = {
-      total: false,
-      href: false,
-      keywords: false,
-      position: false,
-      tag: false,
-      text: false,
-      timestamp: false,
-      uuid: false
-    };
-    parsed = goldwasher(testContentNoHref, options);
-    parsed.length.should.equal(0);
-    done();
-  });
 });
 
 describe('conversion', function() {
 
-  //it('can get meta data', function() {
-  //  parsed = goldwasher(testContentMeta, {
-  //    output: 'rss',
-  //    url: 'foo.com',
-  //    feedUrl: 'foo.com/feed'
-  //  });
-  //  parsed.should.all.be.a('string');
-  //});
+  it('can receive XML as input', function(done) {
+    parsed = goldwasher(testContentXml, {
+      url: 'foo.com',
+      selector: 'baz'
+    });
+
+    parsed.length.should.equal(1);
+    parsed.should.all.have.property('timestamp');
+    parsed.should.all.have.property('text');
+    parsed.should.all.have.property('keywords');
+    parsed.should.all.have.property('href');
+    parsed.should.all.have.property('tag');
+    parsed.should.all.have.property('position');
+    parsed.should.all.have.property('total');
+    parsed.should.all.have.property('uuid');
+    parsed[0].keywords.length.should.equal(7);
+    parsed[0].keywords[0].word.should.equal('oak');
+
+    done();
+  });
+
+  it('can receive feeds as input', function(done) {
+    var input = goldwasher(testContentMeta, {
+      output: 'atom',
+      url: 'foo.com',
+      selector: 'h1, h2, a'
+    });
+
+    parsed = goldwasher(input, {
+      output: 'json',
+      filterTexts: ['Cats and dogs each hate the other.']
+    });
+
+    parsed.length.should.equal(4);
+    parsed.should.all.have.property('timestamp');
+    parsed.should.all.have.property('text');
+    parsed.should.all.have.property('keywords');
+    parsed.should.all.have.property('href');
+    parsed.should.all.have.property('tag');
+    parsed.should.all.have.property('position');
+    parsed.should.all.have.property('total');
+    parsed.should.all.have.property('uuid');
+    parsed[0].keywords.length.should.equal(7);
+    parsed[0].keywords[0].word.should.equal('oak');
+
+    done();
+  });
 
   it('can output as XML', function() {
     parsed = goldwasher(testContentHref, {output: 'xml'});

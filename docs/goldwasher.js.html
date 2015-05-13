@@ -37,20 +37,7 @@ var cheerio = require('cheerio');
 var uuid = require('node-uuid');
 var js2xmlparser = require('js2xmlparser');
 var Feed = require('feed');
-
-/**
- * Determines whether passed html is a string or a cheerio object.
- * Ensures that we always return a cheerio object.
- * @param {string|object} html
- * @returns {object}
- */
-var getHtml = function(html) {
-  if (R.is(String, html)) {
-    return cheerio.load(html);
-  } else {
-    return html;
-  }
-};
+var NodePie = require('nodepie');
 
 /**
  * Gets an object with the default options.
@@ -61,19 +48,11 @@ var getDefaultOptions = function() {
     filterKeywords: [],
     filterLocale: false,
     filterTexts: [],
-    output: 'json',
-    href: true,
-    keywords: true,
     limit: null,
-    position: true,
+    output: 'json',
     search: [],
     selector: 'h1, h2, h3, h4, h5, h6, p',
-    tag: true,
-    text: true,
-    timestamp: true,
-    total: true,
-    url: null,
-    uuid: true
+    url: null
   };
 };
 
@@ -86,19 +65,11 @@ var getOptionsSchema = function() {
     filterKeywords: Joi.array(),
     filterLocale: Joi.string().valid('en'),
     filterTexts: Joi.array(),
-    output: Joi.string().valid('json', 'xml', 'atom', 'rss'),
-    href: Joi.boolean(),
-    keywords: Joi.boolean(),
     limit: Joi.number().integer(),
-    position: Joi.boolean(),
+    output: Joi.string().valid('json', 'xml', 'atom', 'rss'),
     search: Joi.array(),
     selector: Joi.string(),
-    tag: Joi.boolean(),
-    text: Joi.boolean(),
-    timestamp: Joi.boolean(),
-    total: Joi.boolean(),
-    url: Joi.string(),
-    uuid: Joi.boolean()
+    url: Joi.string()
   });
 };
 
@@ -130,7 +101,7 @@ var getOptions = function(options) {
  * @param {string} url
  * @returns {string}
  */
-var getClosestHref = function(domObject, url) {
+var getCheerioClosestHref = function(domObject, url) {
   var href = null;
 
   // has HREF itself
@@ -166,8 +137,7 @@ var getClosestHref = function(domObject, url) {
  * @param {object} domObject
  * @returns {string}
  */
-var getText = function(domObject) {
-  var text = domObject.text();
+var sanitizeText = function(text) {
   return S(text)
     .unescapeHTML()
     .stripTags()
@@ -182,7 +152,7 @@ var getText = function(domObject) {
  * @param {string} name
  * @returns {string|jQuery}
  */
-var getMetaTag = function($, name) {
+var getCheerioMetaTag = function($, name) {
   return $('meta').filter(function() {
     return $(this).attr('name') === name;
   }).map(function() {
@@ -196,8 +166,10 @@ var getMetaTag = function($, name) {
  * @param {string|string[]} text
  * @returns {string}
  */
-var slugify = function(text) {
-  if (R.isArrayLike(text)) { return R.map(slugify, text); }
+var slugifyText = function(text) {
+  if (R.isArrayLike(text)) {
+    return R.map(slugifyText, text);
+  }
   return S(text).slugify().s;
 };
 
@@ -207,8 +179,8 @@ var slugify = function(text) {
  * @param {string[]} list
  * @returns {boolean}
  */
-var slugifiedArrayContains = function(text, list) {
-  return !!R.contains(slugify(text), slugify(list));
+var slugifiedTextArrayContains = function(text, list) {
+  return !!R.contains(slugifyText(text), slugifyText(list));
 };
 
 /**
@@ -217,20 +189,20 @@ var slugifiedArrayContains = function(text, list) {
  * @param {string[]} list
  * @returns {boolean}
  */
-var slugifiedStringContains = function(text, list) {
+var slugifiedTextContains = function(text, list) {
   return !!R.filter(function(listItem) {
-    return S(slugify(text)).contains(slugify(listItem));
+    return S(slugifyText(text)).contains(slugifyText(listItem));
   }, list).length;
 };
 
 /**
- * Reversed slugifiedArrayContains.
+ * Reversed slugifiedTextArrayContains.
  * @param {string} text
  * @param {string[]} blacklist
  * @returns {boolean}
  */
-var slugifiedFilter = function(text, blacklist) {
-  return !slugifiedArrayContains(text, blacklist);
+var slugifiedTextFilter = function(text, blacklist) {
+  return !slugifiedTextArrayContains(text, blacklist);
 };
 
 /**
@@ -241,7 +213,7 @@ var slugifiedFilter = function(text, blacklist) {
  */
 var filterKeywords = function(keywords, blacklist) {
   return R.filter(function(item) {
-    return slugifiedFilter(item, blacklist);
+    return slugifiedTextFilter(item, blacklist);
   }, keywords);
 };
 
@@ -266,8 +238,8 @@ var countKeywords = function(text, keywords) {
  * @param {string[]} blacklist
  * @returns {string[]}
  */
-var getKeywords = function(text, blacklist) {
-  var keywords = R.uniq(slugify(text).split('-'));
+var getKeywordsFromText = function(text, blacklist) {
+  var keywords = R.uniq(slugifyText(text).split('-'));
 
   return countKeywords(text, filterKeywords(keywords, blacklist));
 };
@@ -278,13 +250,13 @@ var getKeywords = function(text, blacklist) {
  * @param {object} options
  * @returns {object}
  */
-var getMeta = function($, options) {
+var getCheerioMeta = function($, url) {
   return {
-    author: getMetaTag($, 'author'),
-    description: getMetaTag($, 'description'),
-    url: options.url,
+    author: getCheerioMetaTag($, 'author'),
+    description: getCheerioMetaTag($, 'description'),
+    url: url,
     time: Date.now(),
-    title: getText($('title'))
+    title: sanitizeText($('title').text())
   };
 };
 
@@ -292,158 +264,289 @@ var getMeta = function($, options) {
  * Get all keywords from an array of nuggets.
  * @param {object[]}
  */
-var getNuggetsKeywordStrings = R.pipe(
-  R.map(function(nugget) { return nugget.keywords; }),
+var getNuggetsKeywordTexts = R.pipe(
+  R.map(function(nugget) {
+    return nugget.keywords;
+  }),
   R.flatten(),
-  R.map(function(keyword) { return keyword.word; }),
+  R.map(function(keyword) {
+    return keyword.word;
+  }),
   R.uniq()
 );
 
 /**
  * Converts a batch of nuggets to a string of XML.
- * @param nuggets
+ * @param batch
  * @returns {string}
  */
-var convertToXml = function(nuggets) {
-  nuggets = R.forEach(function(nugget) {
+var outputToXml = function(batch) {
+  var nuggets = R.forEach(function(nugget) {
     nugget.keyword = nugget.keywords;
     delete nugget.keywords;
-  }, nuggets);
+  }, batch.nuggets);
 
   return js2xmlparser('goldwasher', {nugget: nuggets});
 };
 
 /**
  * Converts an array of nuggets to a feed.
- * @param {object[]} nuggets
+ * @param {object[]} batch
  * @param {object} meta
  * @param {string} output
  * @returns {xml}
  */
-var convertToFeed = function(nuggets, meta, output) {
+var outputToFeed = function(batch, output) {
   var feed = new Feed({
-    description: meta.description,
-    link: meta.url,
-    title: meta.title
+    description: batch.meta.description,
+    link: batch.meta.url,
+    title: batch.meta.title
   });
 
   R.forEach(function(keyword) {
     feed.addCategory(keyword);
-  }, getNuggetsKeywordStrings(nuggets));
+  }, getNuggetsKeywordTexts(batch.nuggets));
 
   R.forEach(function(nugget) {
     feed.addItem({
       author: [{
-        name: meta.author,
-        link: meta.url
+        name: batch.meta.author,
+        link: batch.meta.url
       }],
       date: new Date(),
       description: nugget.text,
       guid: nugget.href,
       link: nugget.href,
-      title:  nugget.text
+      title: nugget.text
     });
-  }, nuggets);
+  }, batch.nuggets);
 
   return feed.render(output);
 };
 
 /**
- * Receives html as string or cheerio DOM, along with optional options object.
- * Outputs an array of objects in goldwasher output.
- * @param {string|object} html
- * @param {object} userOptions
- * @returns {object[]}
+ * Function to get keywords for a nugget from a text.
+ * @param {string} text
+ * @param {string[]} filterKeywords
+ * @param {string} filterLocale
+ * @returns {string[]}
  */
-var goldwasher = function(html, userOptions) {
-  var options = getOptions(userOptions);
-  var $ = getHtml(html);
-  var meta = getMeta($, options);
+var getNuggetKeywords = function(text, filterKeywords, filterLocale) {
+  var stopwords = filterKeywords;
+  var localeJson;
+
+  if (filterLocale) {
+    localeJson = require(
+      '../stop_words/' + filterLocale + '.json'
+    );
+    stopwords = R.concat(stopwords, localeJson.stopWords);
+  }
+
+  return getKeywordsFromText(text, stopwords);
+};
+
+/**
+ * Determine if a nugget should be filtered out according to options.
+ * @param {string} text
+ * @param {number} index
+ * @param {object} options
+ * @returns {boolean}
+ */
+var nuggetFilter = function(text, index, options) {
+  if (options.limit &amp;&amp; index >= options.limit) {
+    return true;
+  }
+
+  if (slugifiedTextArrayContains(text, options.filterTexts)) {
+    return true;
+  }
+
+  if (options.search.length > 0) {
+    if (!slugifiedTextContains(text, options.search)) {
+      return true;
+    }
+  }
+};
+
+/**
+ * converts a cheerio object to a batch of nuggets.
+ * @param {object} $
+ * @param {object} options
+ * @returns {object}
+ */
+var inputFromCheerio = function($, options) {
+  var meta = getCheerioMeta($, options.url);
   var scraped = $(options.selector);
   var nuggets = [];
 
   scraped.each(function(index) {
     var nugget = {};
-    var text = getText($(this));
-    var localeStopwords;
-    var stopwords;
+    var text = sanitizeText($(this).text());
 
-    if (options.limit &amp;&amp; index >= options.limit) {
-      return;
-    }
+    if (nuggetFilter(text, index, options)) { return; }
 
-    if (slugifiedArrayContains(text, options.filterTexts)) {
-      return;
-    }
+    nugget.href = getCheerioClosestHref($(this), options.url);
+    nugget.tag = $(this)[0].name;
+    nugget.text = text;
+    nugget.position = index;
+    nugget.timestamp = meta.time;
+    nugget.uuid = uuid.v1();
+    nugget.keywords = getNuggetKeywords(
+      text,
+      options.filterKeywords,
+      options.filterLocale
+    );
 
-    if (options.search.length > 0) {
-      if (!slugifiedStringContains(text, options.search)) {
-        return;
-      }
-    }
-
-    if (options.href) {
-      nugget.href = getClosestHref($(this), options.url);
-    }
-
-    if (options.keywords) {
-      stopwords = options.filterKeywords;
-
-      if (options.filterLocale) {
-        localeStopwords = require(
-          '../stop_words/' + options.filterLocale + '.json'
-        );
-        stopwords = R.concat(stopwords, localeStopwords.stopWords);
-      }
-
-      nugget.keywords = getKeywords(text, stopwords);
-    }
-
-    if (options.tag) {
-      nugget.tag = $(this)[0].name;
-    }
-
-    if (options.text) {
-      nugget.text = text;
-    }
-
-    if (options.position) {
-      nugget.position = index;
-    }
-
-    if (options.timestamp) {
-      nugget.timestamp = meta.time;
-    }
-
-    if (options.uuid) {
-      nugget.uuid = uuid.v1();
-    }
-
-    // return if object is not empty
-    if (R.keys(nugget).length > 0) {
-      nuggets.push(nugget);
-    }
+    nuggets.push(nugget);
   });
 
-  if (options.total) {
-    nuggets = R.forEach(function(nugget) {
-      nugget.total = nuggets.length;
-    }, nuggets);
+  nuggets = R.forEach(function(nugget) {
+    nugget.total = nuggets.length;
+  }, nuggets);
+
+  return {
+    meta: meta,
+    nuggets: nuggets
+  };
+};
+
+/**
+ * Get meta data for building feeds.
+ * @param {object} feed
+ * @param {object} options
+ * @returns {object}
+ */
+var getFeedMeta = function(feed) {
+  return {
+    description: feed.getDescription(),
+    url: feed.getPermalink(),
+    time: Date.now(),
+    title: feed.getTitle()
+  };
+};
+
+var inputFromFeed = function(feed, options) {
+  var meta = getFeedMeta(feed);
+  var scraped = feed.getItems(0);
+  var nuggets = [];
+
+  R.forEachIndexed(function(value, index) {
+    var nugget = {};
+    var text = sanitizeText(value.getTitle());
+
+    if (nuggetFilter(text, index, options)) { return; }
+
+    nugget.href = feed.getPermalink();
+    nugget.tag = 'feed';
+    nugget.text = text;
+    nugget.position = index;
+    nugget.timestamp = meta.time;
+    nugget.uuid = uuid.v1();
+    nugget.keywords = getNuggetKeywords(
+      text,
+      options.filterKeywords,
+      options.filterLocale
+    );
+    nuggets.push(nugget);
+  }, scraped);
+
+  nuggets = R.forEach(function(nugget) {
+    nugget.total = nuggets.length;
+  }, nuggets);
+
+  return {
+    meta: meta,
+    nuggets: nuggets
+  };
+};
+
+/**
+ * Detects the type of input. Could be improved a lot.
+ * @param {string|object} input
+ * @returns {string}
+ */
+var detectInputType = function(input) {
+  if (R.is(String, input)) {
+
+    // detect RSS for NodePie
+    if (S(input).contains('&lt;feed xmlns="http://www.w3.org/2005/Atom">') ||
+        S(input).contains('&lt;rss version="2.0">') ||
+        S(input).contains('&lt;rss version="0.92">') ||
+        S(input).contains('&lt;/rdf:RDF>')) {
+      return 'feed';
+    }
+
+    // detect if goldwasher XML format
+    if (S(input).contains('&lt;goldwasher>')) {
+      return 'goldwasherXml';
+    }
+
+    // detect if XML
+    if (S(input).contains('&lt;?xml version="1.0" encoding="UTF-8"?>')) {
+      return 'xml';
+    }
+
+    // detect if HTML. Lamest detector ever?
+    if (S(input).contains('&lt;')) {
+      return 'html';
+    }
+
+    throw new Error('Could not determine input type.');
+  } else {
+    return 'cheerio';
+  }
+};
+
+/**
+ * Receives html as string or cheerio DOM, along with optional options object.
+ * Outputs an array of objects in goldwasher output.
+ * @param {string|object} input
+ * @param {object} userOptions
+ * @returns {object[]}
+ */
+var goldwasher = function(input, userOptions) {
+  var options = getOptions(userOptions);
+  var inputType = detectInputType(input);
+  var $;
+  var feed;
+  var batch;
+
+  // first we get the batch of nuggets and meta data
+  if (inputType === 'cheerio' ||
+      inputType === 'html' ||
+      inputType === 'xml') {
+
+    if (inputType !== 'cheerio') {
+      $ = cheerio.load(input);
+    } else {
+      $ = input;
+    }
+
+    batch = inputFromCheerio($, options);
   }
 
+  if (inputType === 'feed') {
+    feed = new NodePie(input);
+    feed.init();
+
+    batch = inputFromFeed(feed, options);
+  }
+
+  // now that we have the nuggets, determine how to output them
   if (options.output === 'xml') {
-    return convertToXml(nuggets);
+    return outputToXml(batch);
   }
 
   if (options.output === 'atom') {
-    return convertToFeed(nuggets, meta, 'atom-1.0');
+    return outputToFeed(batch, 'atom-1.0');
   }
 
   if (options.output === 'rss') {
-    return convertToFeed(nuggets, meta, 'rss-2.0');
+    return outputToFeed(batch, 'rss-2.0');
   }
 
-  return nuggets;
+  // else default to json
+  return batch.nuggets;
 };
 
 module.exports = goldwasher;</code></pre>
@@ -462,7 +565,7 @@ module.exports = goldwasher;</code></pre>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Tue May 12 2015 18:43:58 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Wed May 13 2015 21:22:32 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
