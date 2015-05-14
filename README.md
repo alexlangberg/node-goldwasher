@@ -7,7 +7,7 @@
 [![Dependency Status](https://david-dm.org/alexlangberg/node-goldwasher.svg)](https://david-dm.org/alexlangberg/node-goldwasher)
 [![devDependency Status](https://david-dm.org/alexlangberg/node-goldwasher/dev-status.svg)](https://david-dm.org/alexlangberg/node-goldwasher#info=devDependencies)
 
-The purpose module is to extract text information from HTML, usually a website, which will often have to be sanitized and filtered to be useful. This module takes a pile of HTML and washes out the parts you need as small, golden nuggets of text and related metadata, the default options referred to as "goldwasher format":
+The purpose module is to extract text information from HTML, usually a website, which will often have to be sanitized and filtered to be useful. This module takes a pile of HTML and washes out the parts you need as small, golden nuggets of text and related metadata, the default options referred to as the *goldwasher format*:
 
 JSON format (see additional formats in the bottom):
 ```javascript

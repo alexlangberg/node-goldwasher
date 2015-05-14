@@ -9,4 +9,4 @@
 ## Breaking changes
 
 - The flags for individual goldwasher format keys have been removed. You will thus always get full goldwasher formatted objects out. If you need to remove keys from them, do so afterwards.
-- If upgrading from older versions, note that ```target``` has been renamed to the more proper ```selector```.
+- If upgrading from older versions, note that ```target``` has been renamed to the more proper ```selector``` and ```format``` to ```output```.
