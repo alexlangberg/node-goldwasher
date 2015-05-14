@@ -1,13 +1,11 @@
 # node-goldwasher
+[![npm version](http://img.shields.io/npm/v/goldwasher.svg)](https://www.npmjs.org/package/goldwasher)
 [![Build Status](http://img.shields.io/travis/alexlangberg/node-goldwasher.svg)](https://travis-ci.org/alexlangberg/node-goldwasher)
 [![Coverage Status](http://img.shields.io/coveralls/alexlangberg/node-goldwasher.svg)](https://coveralls.io/r/alexlangberg/node-goldwasher?branch=master)
 [![Code Climate](http://img.shields.io/codeclimate/github/alexlangberg/node-goldwasher.svg)](https://codeclimate.com/github/alexlangberg/node-goldwasher)
-[![npm version](http://img.shields.io/npm/v/goldwasher.svg)](https://www.npmjs.org/package/goldwasher)
 
 [![Dependency Status](https://david-dm.org/alexlangberg/node-goldwasher.svg)](https://david-dm.org/alexlangberg/node-goldwasher)
 [![devDependency Status](https://david-dm.org/alexlangberg/node-goldwasher/dev-status.svg)](https://david-dm.org/alexlangberg/node-goldwasher#info=devDependencies)
-
-**NOTE:** Version 3 has been a complete rewrite. UUIDs have been added and all parts can be selectively turned off by passing e.g. ```href: false``` as an option. The only breaking change should be that you have to switch the html and options parameters and rename the ```targets``` parameter to ```selector```.
 
 The purpose module is to extract text information from HTML, usually a website, which will often have to be sanitized and filtered to be useful. This module takes a pile of HTML and washes out the parts you need as small, golden nuggets of text and related metadata, the default options referred to as "goldwasher format":
 
@@ -26,7 +24,9 @@ JSON format (see additional formats in the bottom):
     tag: "h1",
     position: 0,
     total: 2,
-    uuid: "808b7490-f743-11e4-90b2-df723554e9be"
+    uuid: "808b7490-f743-11e4-90b2-df723554e9be",
+    batch: "14eefda0-f762-11e4-a0b3-d5647c4f7651",
+    source: "http://www.oakisstrong.com"
 }
 ```
 
@@ -43,6 +43,8 @@ It works by passing it either pure HTML as a string (e.g. from [request](https:/
 9. Assign a unique identifier (UUID V1).
 10. Index the nugget position in the order it was found found.
 11. Add the total nugget count.
+12. Add the URL of the original source.
+13. Assign a unique identifier (UUID V1) that is similar for the entire batch of nuggets.
 
 The returned nuggets include the object properties:
 
@@ -58,8 +60,11 @@ The returned nuggets include the object properties:
 - ```position``` - the position of the object, indicating the order in which tags were found. 0-based.
 - ```total``` - total number of nuggets in relation to the position. 1-based.
 - ```uuid``` - a unique identifier (UUID V1).
+- ```batch``` - a unique identifier (UUID V1) that is the same for the entire batch of nuggets.
+- ```source``` - a URL that was scraped, also the same for all nuggets.
 
-Alternatively, the output can be configured as XML, Atom or RSS format with the ```output``` option.
+
+Alternatively, the output can be configured as XML, Atom or RSS format with the ```output``` option. The reason redundant information is included, such as the source, is that each returned nugget is supposed to be an atomic piece of information. As such, each nugget is to contain the information that "somewhere, at some point in time, something was written (with a link to some place)".
 
 ## Installation
 ```
@@ -75,7 +80,6 @@ npm install goldwasher
 - ```filterKeywords``` - stop words that should be excluded as keywords.
 - ```filterLocale``` - stop words from external json file (see the folder stop_words).
 - ```format``` - output format (```json```, ```xml```, ```atom``` or ```rss```).
-- The rest can be selectively turned off by passing e.g. ```href: false```.
 
 ## Example
 ```javascript
@@ -110,7 +114,9 @@ var result = goldwasher(html, options);
     tag: "h1",
     position: 0,
     total: 2,
-    uuid: "808b7490-f743-11e4-90b2-df723554e9be"
+    uuid: "808b7490-f743-11e4-90b2-df723554e9be",
+    batch: "14eefda0-f762-11e4-a0b3-d5647c4f7651",
+    source: "http://www.oakisstrong.com"
    },
   { 
     timestamp: 1402847736381,
@@ -124,7 +130,9 @@ var result = goldwasher(html, options);
     tag: "h2",
     position: 1,
     total: 2,
-    uuid: "a48fbb30-f743-11e4-96e6-7b423a412011"
+    uuid: "a48fbb30-f743-11e4-96e6-7b423a412011",
+    batch: "14eefda0-f762-11e4-a0b3-d5647c4f7651",
+    source: "http://www.oakisstrong.com"
   }
 ]
 */
@@ -146,7 +154,9 @@ var result = goldwasher(html, options);
     tag: "h1",
     position: 0,
     total: 2,
-    uuid: "808b7490-f743-11e4-90b2-df723554e9be"
+    uuid: "808b7490-f743-11e4-90b2-df723554e9be",
+    batch: "14eefda0-f762-11e4-a0b3-d5647c4f7651",
+    source: "http://www.oakisstrong.com"
 }
 ```
 
@@ -162,6 +172,8 @@ var result = goldwasher(html, options);
         <timestamp>1431296135800</timestamp>
         <uuid>14eefda0-f762-11e4-a0b3-d5647c4f7651</uuid>
         <total>3</total>
+        <batch>14eefda0-f762-11e4-a0b3-d5647c4f7651</batch>
+        <source>http://www.oakisstrong.com</batch>
         <keyword>
             <word>oak</word>
             <count>1</count>

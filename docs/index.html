@@ -42,13 +42,12 @@
 
     <section>
         <article><h1 id="node-goldwasher">node-goldwasher</h1>
-<p><a href="https://travis-ci.org/alexlangberg/node-goldwasher"><img src="http://img.shields.io/travis/alexlangberg/node-goldwasher.svg" alt="Build Status"></a>
+<p><a href="https://www.npmjs.org/package/goldwasher"><img src="http://img.shields.io/npm/v/goldwasher.svg" alt="npm version"></a>
+<a href="https://travis-ci.org/alexlangberg/node-goldwasher"><img src="http://img.shields.io/travis/alexlangberg/node-goldwasher.svg" alt="Build Status"></a>
 <a href="https://coveralls.io/r/alexlangberg/node-goldwasher?branch=master"><img src="http://img.shields.io/coveralls/alexlangberg/node-goldwasher.svg" alt="Coverage Status"></a>
-<a href="https://codeclimate.com/github/alexlangberg/node-goldwasher"><img src="http://img.shields.io/codeclimate/github/alexlangberg/node-goldwasher.svg" alt="Code Climate"></a>
-<a href="https://www.npmjs.org/package/goldwasher"><img src="http://img.shields.io/npm/v/goldwasher.svg" alt="npm version"></a></p>
+<a href="https://codeclimate.com/github/alexlangberg/node-goldwasher"><img src="http://img.shields.io/codeclimate/github/alexlangberg/node-goldwasher.svg" alt="Code Climate"></a></p>
 <p><a href="https://david-dm.org/alexlangberg/node-goldwasher"><img src="https://david-dm.org/alexlangberg/node-goldwasher.svg" alt="Dependency Status"></a>
 <a href="https://david-dm.org/alexlangberg/node-goldwasher#info=devDependencies"><img src="https://david-dm.org/alexlangberg/node-goldwasher/dev-status.svg" alt="devDependency Status"></a></p>
-<p><strong>NOTE:</strong> Version 3 has been a complete rewrite. UUIDs have been added and all parts can be selectively turned off by passing e.g. <code>href: false</code> as an option. The only breaking change should be that you have to switch the html and options parameters and rename the <code>targets</code> parameter to <code>selector</code>.</p>
 <p>The purpose module is to extract text information from HTML, usually a website, which will often have to be sanitized and filtered to be useful. This module takes a pile of HTML and washes out the parts you need as small, golden nuggets of text and related metadata, the default options referred to as &quot;goldwasher format&quot;:</p>
 <p>JSON format (see additional formats in the bottom):</p>
 <pre><code class="lang-javascript">{ 
@@ -64,7 +63,9 @@
     tag: &quot;h1&quot;,
     position: 0,
     total: 2,
-    uuid: &quot;808b7490-f743-11e4-90b2-df723554e9be&quot;
+    uuid: &quot;808b7490-f743-11e4-90b2-df723554e9be&quot;,
+    batch: &quot;14eefda0-f762-11e4-a0b3-d5647c4f7651&quot;,
+    source: &quot;http://www.oakisstrong.com&quot;
 }
 </code></pre>
 <p>It works by passing it either pure HTML as a string (e.g. from <a href="https://www.npmjs.org/package/request">request</a>) or a <a href="https://www.npmjs.org/package/cheerio">cheerio</a> object, usually along with a <a href="https://www.npmjs.org/package/cheerio">cheerio</a> (jQuery) selector (html tags) from which the text should be extracted, along with other options. It will then return an array of nuggets (objects) of information - one per recognized tag. For each nugget, it will try to:</p>
@@ -80,6 +81,8 @@
 <li>Assign a unique identifier (UUID V1).</li>
 <li>Index the nugget position in the order it was found found.</li>
 <li>Add the total nugget count.</li>
+<li>Add the URL of the original source.</li>
+<li>Assign a unique identifier (UUID V1) that is similar for the entire batch of nuggets.</li>
 </ol>
 <p>The returned nuggets include the object properties:</p>
 <ul>
@@ -97,8 +100,10 @@
 <li><code>position</code> - the position of the object, indicating the order in which tags were found. 0-based.</li>
 <li><code>total</code> - total number of nuggets in relation to the position. 1-based.</li>
 <li><code>uuid</code> - a unique identifier (UUID V1).</li>
+<li><code>batch</code> - a unique identifier (UUID V1) that is the same for the entire batch of nuggets.</li>
+<li><code>source</code> - a URL that was scraped, also the same for all nuggets.</li>
 </ul>
-<p>Alternatively, the output can be configured as XML, Atom or RSS format with the <code>output</code> option.</p>
+<p>Alternatively, the output can be configured as XML, Atom or RSS format with the <code>output</code> option. The reason redundant information is included, such as the source, is that each returned nugget is supposed to be an atomic piece of information. As such, each nugget is to contain the information that &quot;somewhere, at some point in time, something was written (with a link to some place)&quot;.</p>
 <h2 id="installation">Installation</h2>
 <pre><code>npm install goldwasher
 </code></pre><h2 id="options">Options</h2>
@@ -111,7 +116,6 @@
 <li><code>filterKeywords</code> - stop words that should be excluded as keywords.</li>
 <li><code>filterLocale</code> - stop words from external json file (see the folder stop_words).</li>
 <li><code>format</code> - output format (<code>json</code>, <code>xml</code>, <code>atom</code> or <code>rss</code>).</li>
-<li>The rest can be selectively turned off by passing e.g. <code>href: false</code>.</li>
 </ul>
 <h2 id="example">Example</h2>
 <pre><code class="lang-javascript">var goldwasher = require(&#39;goldwasher&#39;);
@@ -145,7 +149,9 @@ var result = goldwasher(html, options);
     tag: &quot;h1&quot;,
     position: 0,
     total: 2,
-    uuid: &quot;808b7490-f743-11e4-90b2-df723554e9be&quot;
+    uuid: &quot;808b7490-f743-11e4-90b2-df723554e9be&quot;,
+    batch: &quot;14eefda0-f762-11e4-a0b3-d5647c4f7651&quot;,
+    source: &quot;http://www.oakisstrong.com&quot;
    },
   { 
     timestamp: 1402847736381,
@@ -159,7 +165,9 @@ var result = goldwasher(html, options);
     tag: &quot;h2&quot;,
     position: 1,
     total: 2,
-    uuid: &quot;a48fbb30-f743-11e4-96e6-7b423a412011&quot;
+    uuid: &quot;a48fbb30-f743-11e4-96e6-7b423a412011&quot;,
+    batch: &quot;14eefda0-f762-11e4-a0b3-d5647c4f7651&quot;,
+    source: &quot;http://www.oakisstrong.com&quot;
   }
 ]
 */
@@ -179,7 +187,9 @@ var result = goldwasher(html, options);
     tag: &quot;h1&quot;,
     position: 0,
     total: 2,
-    uuid: &quot;808b7490-f743-11e4-90b2-df723554e9be&quot;
+    uuid: &quot;808b7490-f743-11e4-90b2-df723554e9be&quot;,
+    batch: &quot;14eefda0-f762-11e4-a0b3-d5647c4f7651&quot;,
+    source: &quot;http://www.oakisstrong.com&quot;
 }
 </code></pre>
 <p><strong>XML:</strong></p>
@@ -193,6 +203,8 @@ var result = goldwasher(html, options);
         &lt;timestamp&gt;1431296135800&lt;/timestamp&gt;
         &lt;uuid&gt;14eefda0-f762-11e4-a0b3-d5647c4f7651&lt;/uuid&gt;
         &lt;total&gt;3&lt;/total&gt;
+        &lt;batch&gt;14eefda0-f762-11e4-a0b3-d5647c4f7651&lt;/batch&gt;
+        &lt;source&gt;http://www.oakisstrong.com&lt;/batch&gt;
         &lt;keyword&gt;
             &lt;word&gt;oak&lt;/word&gt;
             &lt;count&gt;1&lt;/count&gt;
@@ -303,7 +315,7 @@ var result = goldwasher(html, options);
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Thu May 14 2015 14:59:49 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Thu May 14 2015 16:33:25 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
