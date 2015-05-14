@@ -190,7 +190,7 @@ var result = goldwasher(html, options);
             <count>1</count>
         </keyword>
     </nugget>
-<goldwasher>
+</goldwasher>
 ```
 
 **Atom:**

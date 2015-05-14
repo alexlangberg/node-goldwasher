@@ -38,10 +38,20 @@ var uuid = require('node-uuid');
 var js2xmlparser = require('js2xmlparser');
 var Feed = require('feed');
 var NodePie = require('nodepie');
+var xml2json = require('xml2json');
 
 /**
  * Gets an object with the default options.
- * @returns {object}
+ * @returns {{
+ *  filterKeywords: Array,
+ *  filterLocale: boolean,
+ *  filterTexts: Array,
+ *  limit: null,
+ *  output: string,
+ *  search: Array,
+ *  selector: string,
+ *  url: null
+ *}}
  */
 var getDefaultOptions = function() {
   return {
@@ -58,7 +68,7 @@ var getDefaultOptions = function() {
 
 /**
  * Gets the validation schema for Joi.
- * @returns {Array}
+ * @returns {*|Array}
  */
 var getOptionsSchema = function() {
   return Joi.object().keys({
@@ -75,8 +85,8 @@ var getOptionsSchema = function() {
 
 /**
  * Validates options passed by the user and merges them with defaults
- * @param {object} options
- * @returns {object}
+ * @param options
+ * @returns {Object|*}
  */
 var getOptions = function(options) {
   // create default options object if none is provided or test schema
@@ -97,9 +107,9 @@ var getOptions = function(options) {
 /**
  * Finds the closest &lt;a> tag and returns the HREF of it.
  * Also converts relative URLs to absolute.
- * @param {object} domObject
- * @param {string} url
- * @returns {string}
+ * @param domObject
+ * @param url
+ * @returns {*}
  */
 var getCheerioClosestHref = function(domObject, url) {
   var href = null;
@@ -129,13 +139,15 @@ var getCheerioClosestHref = function(domObject, url) {
     href = url + href;
   }
 
+  if (!href) { return url; }
+
   return href;
 };
 
 /**
  * Gets the text of a cheerio DOM object.
- * @param {object} domObject
- * @returns {string}
+ * @param text
+ * @returns {String.s|*}
  */
 var sanitizeText = function(text) {
   return S(text)
@@ -148,9 +160,9 @@ var sanitizeText = function(text) {
 
 /**
  * Gets the contant of a meta tag.
- * @param {object} $
- * @param {string} name
- * @returns {string|jQuery}
+ * @param $
+ * @param name
+ * @returns {*|string|String|jQuery}
  */
 var getCheerioMetaTag = function($, name) {
   return $('meta').filter(function() {
@@ -163,8 +175,8 @@ var getCheerioMetaTag = function($, name) {
 /**
  * Returns a slugified version of the text or an array of texts.
  * Often used for comparison.
- * @param {string|string[]} text
- * @returns {string}
+ * @param text
+ * @returns {*}
  */
 var slugifyText = function(text) {
   if (R.isArrayLike(text)) {
@@ -175,8 +187,8 @@ var slugifyText = function(text) {
 
 /**
  * Checks whether a list contains provided text.
- * @param {string} text
- * @param {string[]} list
+ * @param text
+ * @param list
  * @returns {boolean}
  */
 var slugifiedTextArrayContains = function(text, list) {
@@ -185,8 +197,8 @@ var slugifiedTextArrayContains = function(text, list) {
 
 /**
  * Checks whether a text contains any text in a list
- * @param {string} text
- * @param {string[]} list
+ * @param text
+ * @param list
  * @returns {boolean}
  */
 var slugifiedTextContains = function(text, list) {
@@ -197,8 +209,8 @@ var slugifiedTextContains = function(text, list) {
 
 /**
  * Reversed slugifiedTextArrayContains.
- * @param {string} text
- * @param {string[]} blacklist
+ * @param text
+ * @param blacklist
  * @returns {boolean}
  */
 var slugifiedTextFilter = function(text, blacklist) {
@@ -206,10 +218,10 @@ var slugifiedTextFilter = function(text, blacklist) {
 };
 
 /**
- * Returns array of keywords not in the blacklist.
- * @param {string[]} keywords
- * @param {string[]} blacklist
- * @returns {string[]}
+ * * Returns array of keywords not in the blacklist.
+ * @param keywords
+ * @param blacklist
+ * @returns {Array|*}
  */
 var filterKeywords = function(keywords, blacklist) {
   return R.filter(function(item) {
@@ -219,9 +231,9 @@ var filterKeywords = function(keywords, blacklist) {
 
 /**
  * Counts keyword occurences in text.
- * @param {string} text
- * @param {string[]} keywords
- * @returns {object[]}
+ * @param text
+ * @param keywords
+ * @returns {Array|*}
  */
 var countKeywords = function(text, keywords) {
   return R.map(function(keyword) {
@@ -234,9 +246,9 @@ var countKeywords = function(text, keywords) {
 
 /**
  * Get keywords from text.
- * @param {string} text
- * @param {string[]} blacklist
- * @returns {string[]}
+ * @param text
+ * @param blacklist
+ * @returns {Array|*}
  */
 var getKeywordsFromText = function(text, blacklist) {
   var keywords = R.uniq(slugifyText(text).split('-'));
@@ -245,10 +257,16 @@ var getKeywordsFromText = function(text, blacklist) {
 };
 
 /**
- * Get meta data for building feeds.
- * @param {object} $
- * @param {object} options
- * @returns {object}
+ * Get meta data from cheerio for building feeds.
+ * @param $
+ * @param url
+ * @returns {{
+ *  author: (*|string|String|jQuery),
+ *  description: (*|string|String|jQuery),
+ *  url: *,
+ *  time: (number|*),
+ *  title: (String.s|*)
+ *}}
  */
 var getCheerioMeta = function($, url) {
   return {
@@ -261,8 +279,23 @@ var getCheerioMeta = function($, url) {
 };
 
 /**
+ * Get meta data from nuggets for building feeds.
+ * @param nuggets
+ * @returns {{
+ *   url: (convertLcovFileObject.source|*|ret.source|source|string|Window),
+ *   time: (timestamp|*|Number|number)
+ * }}
+ */
+var getNuggetsMeta = function(nuggets) {
+  return {
+    url: nuggets[0].source,
+    time: nuggets[0].timestamp
+  };
+};
+
+/**
  * Get all keywords from an array of nuggets.
- * @param {object[]}
+ * @type {Function|*}
  */
 var getNuggetsKeywordTexts = R.pipe(
   R.map(function(nugget) {
@@ -278,7 +311,7 @@ var getNuggetsKeywordTexts = R.pipe(
 /**
  * Converts a batch of nuggets to a string of XML.
  * @param batch
- * @returns {string}
+ * @returns {*}
  */
 var outputToXml = function(batch) {
   var nuggets = R.forEach(function(nugget) {
@@ -291,10 +324,9 @@ var outputToXml = function(batch) {
 
 /**
  * Converts an array of nuggets to a feed.
- * @param {object[]} batch
- * @param {object} meta
- * @param {string} output
- * @returns {xml}
+ * @param batch
+ * @param output
+ * @returns {*}
  */
 var outputToFeed = function(batch, output) {
   var feed = new Feed({
@@ -326,10 +358,10 @@ var outputToFeed = function(batch, output) {
 
 /**
  * Function to get keywords for a nugget from a text.
- * @param {string} text
- * @param {string[]} filterKeywords
- * @param {string} filterLocale
- * @returns {string[]}
+ * @param text
+ * @param filterKeywords
+ * @param filterLocale
+ * @returns {Array|*}
  */
 var getNuggetKeywords = function(text, filterKeywords, filterLocale) {
   var stopwords = filterKeywords;
@@ -347,9 +379,9 @@ var getNuggetKeywords = function(text, filterKeywords, filterLocale) {
 
 /**
  * Determine if a nugget should be filtered out according to options.
- * @param {string} text
- * @param {number} index
- * @param {object} options
+ * @param text
+ * @param index
+ * @param options
  * @returns {boolean}
  */
 var nuggetFilter = function(text, index, options) {
@@ -369,10 +401,18 @@ var nuggetFilter = function(text, index, options) {
 };
 
 /**
- * converts a cheerio object to a batch of nuggets.
- * @param {object} $
- * @param {object} options
- * @returns {object}
+ * Converts a cheerio object to a batch of nuggets.
+ * @param $
+ * @param options
+ * @returns {{
+ *   meta: {
+ *     author: (*|string|String|jQuery),
+ *     description: (*|string|String|jQuery),
+ *     url: *,
+ *     time: (number|*),
+ *     title: (String.s|*)},
+ *   nuggets: Array
+ * }}
  */
 var inputFromCheerio = function($, options) {
   var meta = getCheerioMeta($, options.url);
@@ -385,6 +425,7 @@ var inputFromCheerio = function($, options) {
 
     if (nuggetFilter(text, index, options)) { return; }
 
+    nugget.source = options.url;
     nugget.href = getCheerioClosestHref($(this), options.url);
     nugget.tag = $(this)[0].name;
     nugget.text = text;
@@ -412,9 +453,8 @@ var inputFromCheerio = function($, options) {
 
 /**
  * Get meta data for building feeds.
- * @param {object} feed
- * @param {object} options
- * @returns {object}
+ * @param feed
+ * @returns {{description: *, url: *, time: (number|*), title: *}}
  */
 var getFeedMeta = function(feed) {
   return {
@@ -425,7 +465,23 @@ var getFeedMeta = function(feed) {
   };
 };
 
-var inputFromFeed = function(feed, options) {
+/**
+ * Converts a NodePie object to an array of nuggets.
+ * @param input
+ * @param options
+ * @returns {{
+ *   meta: {
+ *     description: *,
+ *     url: *,
+ *     time: (number|*),
+ *     title: *
+ *   },
+ *   nuggets: Array
+ * }}
+ */
+var inputFromFeed = function(input, options) {
+  var feed = new NodePie(input);
+  feed.init();
   var meta = getFeedMeta(feed);
   var scraped = feed.getItems(0);
   var nuggets = [];
@@ -436,6 +492,7 @@ var inputFromFeed = function(feed, options) {
 
     if (nuggetFilter(text, index, options)) { return; }
 
+    nugget.source = meta.url;
     nugget.href = feed.getPermalink();
     nugget.tag = 'feed';
     nugget.text = text;
@@ -462,7 +519,7 @@ var inputFromFeed = function(feed, options) {
 
 /**
  * Detects the type of input. Could be improved a lot.
- * @param {string|object} input
+ * @param input
  * @returns {string}
  */
 var detectInputType = function(input) {
@@ -486,53 +543,109 @@ var detectInputType = function(input) {
       return 'xml';
     }
 
-    // detect if HTML. Lamest detector ever?
+    // detect if HTML. Lamest detector ever? Pretty much the default anyway.
     if (S(input).contains('&lt;')) {
       return 'html';
     }
 
-    throw new Error('Could not determine input type.');
+    throw new Error('Could not determine input type. (string)');
   } else {
-    return 'cheerio';
+
+    //if input is not string, it must be a goldwasher array or cheerio object
+    if (R.has('parseHTML', input)) {
+      return 'cheerio';
+    }
+
+    if (R.isArrayLike(input)) {
+      if (R.has('timestamp', input[0])) {
+        return 'array';
+      }
+    }
+
+    throw new Error('Could not determine input type. (cheerio/array)');
   }
+};
+
+/**
+ * Converts a nugget from XML format to JSON format
+ * @param nugget
+ * @returns {*}
+ */
+var xmlNuggetToJsonNugget = function(nugget) {
+  nugget.keywords = [nugget.keyword];
+  delete nugget.keyword;
+  return nugget;
+};
+
+/**
+ * Converts goldwasher XML to nuggets.
+ * @param input
+ * @returns {{
+ *   meta: {
+ *     url: (convertLcovFileObject.source|*|ret.source|source|string|Window),
+ *     time: (timestamp|*|Number|number)
+ *   },
+ *   nuggets: *
+ * }}
+ */
+var inputFromGoldwasherXml = function(input) {
+  var json = xml2json.toJson(input, {object: true});
+  var nuggets;
+
+  if (R.isArrayLike(json.goldwasher.nugget)) {
+    nuggets = R.map(function(nugget) {
+      return xmlNuggetToJsonNugget(nugget);
+    }, json.goldwasher.nugget);
+  } else {
+    nuggets = [xmlNuggetToJsonNugget(json.goldwasher.nugget)];
+  }
+
+  return {
+    meta: getNuggetsMeta(nuggets),
+    nuggets: nuggets
+  };
 };
 
 /**
  * Receives html as string or cheerio DOM, along with optional options object.
  * Outputs an array of objects in goldwasher output.
- * @param {string|object} input
- * @param {object} userOptions
- * @returns {object[]}
+ * @param input
+ * @param userOptions
+ * @returns {*}
  */
 var goldwasher = function(input, userOptions) {
-  var options = getOptions(userOptions);
-  var inputType = detectInputType(input);
-  var $;
-  var feed;
   var batch;
+  var options = getOptions(userOptions);
+  options.input = detectInputType(input);
 
   // first we get the batch of nuggets and meta data
-  if (inputType === 'cheerio' ||
-      inputType === 'html' ||
-      inputType === 'xml') {
+  if (options.input === 'array') {
+    batch = {
+      meta: getNuggetsMeta(input),
+      nuggets: input
+    };
+  }
 
-    if (inputType !== 'cheerio') {
-      $ = cheerio.load(input);
+  if (options.input === 'cheerio' ||
+      options.input === 'html' ||
+      options.input === 'xml') {
+
+    if (options.input !== 'cheerio') {
+      batch = inputFromCheerio(cheerio.load(input), options);
     } else {
-      $ = input;
+      batch = inputFromCheerio(input, options);
     }
-
-    batch = inputFromCheerio($, options);
   }
 
-  if (inputType === 'feed') {
-    feed = new NodePie(input);
-    feed.init();
-
-    batch = inputFromFeed(feed, options);
+  if (options.input === 'feed') {
+    batch = inputFromFeed(input, options);
   }
 
-  // now that we have the nuggets, determine how to output them
+  if (options.input === 'goldwasherXml') {
+    batch = inputFromGoldwasherXml(input);
+  }
+
+  // now that we have the batch of nuggets, determine how to output them
   if (options.output === 'xml') {
     return outputToXml(batch);
   }
@@ -565,7 +678,7 @@ module.exports = goldwasher;</code></pre>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Wed May 13 2015 21:22:32 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Thu May 14 2015 13:37:45 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>

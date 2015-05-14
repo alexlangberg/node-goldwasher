@@ -45,25 +45,79 @@ var testContentMeta = '<html><head>' +
                       testContentHref +
                       '</body></html>';
 var testContentXmlGold = '<?xml version="1.0" encoding="UTF-8"?>' +
-                     '<goldwasher><nugget>' +
-                     '<href>/oak/strong</href>' +
-                     '<tag>h1</tag>' +
-                     '<text>Oak is strong and also gives shade.</text>' +
-                     '<position>0</position>' +
-                     '<timestamp>1431296135800</timestamp>' +
-                     '<uuid>14eefda0-f762-11e4-a0b3-d5647c4f7651</uuid>' +
-                     '<total>3</total>' +
-                     '<keyword>' +
-                       '<word>oak</word>' +
-                       '<count>1</count>' +
-                     '</keyword>' +
-                     '</nugget><goldwasher>';
+  '<goldwasher>' +
+    '<nugget>' +
+      '<source>foo.com</source>' +
+      '<href>/oak/strong</href>' +
+      '<tag>h1</tag>' +
+      '<text>Oak is strong and also gives shade.</text>' +
+      '<position>0</position>' +
+      '<timestamp>1431296135800</timestamp>' +
+      '<uuid>14eefda0-f762-11e4-a0b3-d5647c4f7651</uuid>' +
+      '<batch>24eefda0-f762-11e4-a0b3-d5647c4f7651</batch>' +
+      '<total>3</total>' +
+      '<keyword>' +
+       '<word>oak</word>' +
+       '<count>1</count>' +
+      '</keyword>' +
+      '<keyword>' +
+        '<word>strong</word>' +
+        '<count>1</count>' +
+      '</keyword>' +
+    '</nugget>' +
+  '</goldwasher>';
+var testContentXmlGoldArray = '<?xml version="1.0" encoding="UTF-8"?>' +
+  '<goldwasher>' +
+    '<nugget>' +
+      '<source>foo.com</source>' +
+      '<href>/oak/strong</href>' +
+      '<tag>h1</tag>' +
+      '<text>Oak is strong and also gives shade.</text>' +
+      '<position>0</position>' +
+      '<timestamp>1431296135800</timestamp>' +
+      '<uuid>14eefda0-f762-11e4-a0b3-d5647c4f7651</uuid>' +
+      '<batch>24eefda0-f762-11e4-a0b3-d5647c4f7651</batch>' +
+      '<total>3</total>' +
+      '<keyword>' +
+        '<word>oak</word>' +
+        '<count>1</count>' +
+      '</keyword>' +
+    '</nugget>' +
+    '<nugget>' +
+      '<source>foo.com</source>' +
+      '<href>/oak/strong</href>' +
+      '<tag>h1</tag>' +
+      '<text>Oak is strong and also gives shade.</text>' +
+      '<position>0</position>' +
+      '<timestamp>1431296135800</timestamp>' +
+      '<uuid>14eefda0-f762-11e4-a0b3-d5647c4f7651</uuid>' +
+      '<batch>24eefda0-f762-11e4-a0b3-d5647c4f7651</batch>' +
+      '<total>3</total>' +
+      '<keyword>' +
+        '<word>oak</word>' +
+        '<count>1</count>' +
+      '</keyword>' +
+    '</nugget>' +
+  '</goldwasher>';
 var testContentXml = '<?xml version="1.0" encoding="UTF-8"?>' +
-                     '<foo><bar>' +
-                     '<baz>Oak is strong and also gives shade.</baz>' +
-                     '</bar><foo>';
+  '<foo><bar>' +
+  '<baz>Oak is strong and also gives shade.</baz>' +
+  '</bar><foo>';
 var parsed;
 var options;
+
+var validateNuggets = function(nuggets) {
+  nuggets.should.all.have.property('timestamp');
+  nuggets.should.all.have.property('text');
+  nuggets.should.all.have.property('keywords');
+  nuggets.should.all.have.property('href');
+  nuggets.should.all.have.property('tag');
+  nuggets.should.all.have.property('position');
+  nuggets.should.all.have.property('source');
+  nuggets.should.all.have.property('total');
+  nuggets.should.all.have.property('uuid');
+  nuggets.should.all.have.property('batch');
+};
 
 describe('returned objects', function() {
 
@@ -198,7 +252,15 @@ describe('validation', function() {
 
   it('throws on unknown input types', function(done) {
     should.throw(function() {
-      parsed = goldwasher('foo', testOptions);
+      parsed = goldwasher('foo');
+    });
+
+    should.throw(function() {
+      parsed = goldwasher({foo: 'bar'});
+    });
+
+    should.throw(function() {
+      parsed = goldwasher([{foo: 'bar'}]);
     });
 
     done();
@@ -238,21 +300,32 @@ describe('validation', function() {
 
 describe('conversion', function() {
 
+  it('can receive an array of goldwasher objects as input', function(done) {
+    parsed = goldwasher(testContentMeta, {url: 'foo.com'});
+    var parsedArray = goldwasher(parsed);
+    validateNuggets(parsedArray);
+    done();
+  });
+
+  it('can receive goldwasher XML as input', function(done) {
+    parsed = goldwasher(testContentXmlGoldArray);
+    validateNuggets(parsed);
+    done();
+  });
+
+  it('can receive goldwasher XML with only one nugget', function(done) {
+    parsed = goldwasher(testContentXmlGold);
+    validateNuggets(parsed);
+    done();
+  });
+
   it('can receive XML as input', function(done) {
     parsed = goldwasher(testContentXml, {
       url: 'foo.com',
       selector: 'baz'
     });
-
+    validateNuggets(parsed);
     parsed.length.should.equal(1);
-    parsed.should.all.have.property('timestamp');
-    parsed.should.all.have.property('text');
-    parsed.should.all.have.property('keywords');
-    parsed.should.all.have.property('href');
-    parsed.should.all.have.property('tag');
-    parsed.should.all.have.property('position');
-    parsed.should.all.have.property('total');
-    parsed.should.all.have.property('uuid');
     parsed[0].keywords.length.should.equal(7);
     parsed[0].keywords[0].word.should.equal('oak');
 
@@ -270,16 +343,8 @@ describe('conversion', function() {
       output: 'json',
       filterTexts: ['Cats and dogs each hate the other.']
     });
-
+    validateNuggets(parsed);
     parsed.length.should.equal(4);
-    parsed.should.all.have.property('timestamp');
-    parsed.should.all.have.property('text');
-    parsed.should.all.have.property('keywords');
-    parsed.should.all.have.property('href');
-    parsed.should.all.have.property('tag');
-    parsed.should.all.have.property('position');
-    parsed.should.all.have.property('total');
-    parsed.should.all.have.property('uuid');
     parsed[0].keywords.length.should.equal(7);
     parsed[0].keywords[0].word.should.equal('oak');
 
@@ -299,6 +364,7 @@ describe('conversion', function() {
     parsed.should.contain('<uuid>');
     parsed.should.contain('<total>3</total>');
     parsed.should.contain('<keyword>');
+    parsed.should.contain('<source>');
     parsed.should.contain('<word>oak</word>');
     parsed.should.contain('<count>1</count>');
   });
