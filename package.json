@@ -30,7 +30,7 @@
     "gulp-jshint": "^1.10.0",
     "gulp-mocha": "^2.0.1",
     "gulp-spawn-mocha": "^2.0.1",
-    "istanbul": "^0.3.13",
+    "istanbul": "^0.3.14",
     "jshint-stylish": "^1.0.2",
     "mocha": "^2.2.4"
   },
@@ -47,6 +47,7 @@
   "dependencies": {
     "cheerio": "^0.19.0",
     "feed": "^0.2.6",
+    "istanbul": "^0.3.14",
     "joi": "^6.4.1",
     "js2xmlparser": "^0.1.9",
     "node-uuid": "^1.4.3",
@@ -54,7 +55,6 @@
     "ramda": "^0.14.0",
     "string": "^3.1.1",
     "validator": "^3.39.0",
-    "xml2js": "^0.4.8",
     "xml2json": "^0.6.2"
   },
   "repository": {
