@@ -2,7 +2,7 @@
 
 ## Features
 
-- It is now possible to both use goldwasher for scraping and conversion of its own formats. Thus, the input can now be any of the following: html, xml, cheerio object, array of goldwasher items, goldwasher xml or even an RSS/Atom feed. The output can be either json, xml, atom or rss. Note that feeds do not contain the same amount of information as json or xml.
+- It is now possible to both use goldwasher for scraping and conversion of its own formats. Thus, the input can now be any of the following: HTML, XML, cheerio object, array of goldwasher items, goldwasher XML or even an RSS/Atom feed. The output can be either JSON, XML, Atom or RSS. Note that feeds do not contain the same amount of information as JSON or XML.
 - The parameter "batch" has been added to the format. It contains a UUID that will be the same for all nuggets of a goldwasher batch.
 - The parameter "source" has been added to the format. It contains the original URL of the scraped page.
 

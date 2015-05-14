@@ -30,7 +30,7 @@ JSON format (see additional formats in the bottom):
 }
 ```
 
-It works by passing it either pure HTML as a string (e.g. from [request](https://www.npmjs.org/package/request)) or a [cheerio](https://www.npmjs.org/package/cheerio) object, usually along with a [cheerio](https://www.npmjs.org/package/cheerio) (jQuery) selector (html tags) from which the text should be extracted, along with other options. It will then return an array of nuggets (objects) of information - one per recognized tag. For each nugget, it will try to:
+It works by passing it either pure HTML as a string (e.g. from [request](https://www.npmjs.org/package/request)) or a [cheerio](https://www.npmjs.org/package/cheerio) object, usually along with a [cheerio](https://www.npmjs.org/package/cheerio) (jQuery) selector (HTML tags) from which the text should be extracted, along with other options. It will then return an array of nuggets (objects) of information - one per recognized tag. For each nugget, it will try to:
 
 1. Get the text of the tag and sanitize it, e.g. remove newlines.
 2. Optionally discard the nugget, if it matches an array of stop texts.
@@ -78,7 +78,7 @@ npm install goldwasher
 - ```url``` - base url of links, for sites that use relative urls.
 - ```filterTexts``` - stop texts that should be excluded.
 - ```filterKeywords``` - stop words that should be excluded as keywords.
-- ```filterLocale``` - stop words from external json file (see the folder stop_words).
+- ```filterLocale``` - stop words from external JSON file (see the folder stop_words).
 - ```format``` - output format (```json```, ```xml```, ```atom``` or ```rss```).
 
 ## Example
