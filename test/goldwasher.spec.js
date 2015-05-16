@@ -14,6 +14,7 @@ var testOptions = {
 };
 var testContent = '<h1>foo</h1><h1>bar</h1>';
 var testContentNone = '<h1>foo</h1><h1> </h1><h1></h1>';
+var testContentAccents = '<h1>rødgrød</h1>';
 var testContentHref = '<a href="/oak/strong"><h1>' +
                       'Oak is strong and also gives shade.' +
                       '</h1></a>' +
@@ -206,6 +207,11 @@ describe('returned objects', function() {
 });
 
 describe('filtering', function() {
+
+  it('preserves accented characters', function() {
+    parsed = goldwasher(testContentAccents);
+    parsed[0].keywords[0].word.should.equal('rødgrød');
+  });
 
   it('works with strings with elements with no text', function() {
     parsed = goldwasher(testContentNone);
