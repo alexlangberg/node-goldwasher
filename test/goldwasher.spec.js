@@ -13,6 +13,7 @@ var testOptions = {
   url: 'http://www.google.com'
 };
 var testContent = '<h1>foo</h1><h1>bar</h1>';
+var testContentNone = '<h1>foo</h1><h1> </h1><h1></h1>';
 var testContentHref = '<a href="/oak/strong"><h1>' +
                       'Oak is strong and also gives shade.' +
                       '</h1></a>' +
@@ -205,6 +206,11 @@ describe('returned objects', function() {
 });
 
 describe('filtering', function() {
+
+  it('works with strings with elements with no text', function() {
+    parsed = goldwasher(testContentNone);
+    parsed.should.be.an('array');
+  });
 
   it('removes newlines from the text', function() {
     parsed = goldwasher(testContentNewlines, testOptions);
