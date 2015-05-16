@@ -1,6 +1,6 @@
 {
   "name": "goldwasher",
-  "version": "3.4.3",
+  "version": "4.0.0",
   "description": "Extraction of text and related metadata.",
   "main": "index.js",
   "scripts": {
@@ -69,11 +69,18 @@
       "url": "string",
       "selector": "string",
       "search": "string[]",
-      "output": ["json", "xml", "atom", "rss"],
+      "output": [
+        "json",
+        "xml",
+        "atom",
+        "rss"
+      ],
       "limit": "integer",
       "filterKeywords": "string[]",
       "filterTexts": "string[]",
-      "filterLocale": ["en"]
+      "filterLocale": [
+        "en"
+      ]
     },
     "defaults": {
       "selector": "h1, h2, h3, h4, h5, h6, p",
