@@ -63,5 +63,21 @@
   "bugs": {
     "url": "https://github.com/alexlangberg/node-goldwasher/issues"
   },
-  "homepage": "https://github.com/alexlangberg/node-goldwasher"
+  "homepage": "https://github.com/alexlangberg/node-goldwasher",
+  "goldwasher": {
+    "options": {
+      "url": "string",
+      "selector": "string",
+      "search": "string[]",
+      "output": ["json", "xml", "atom", "rss"],
+      "limit": "integer",
+      "filterKeywords": "string[]",
+      "filterTexts": "string[]",
+      "filterLocale": ["en"]
+    },
+    "defaults": {
+      "selector": "h1, h2, h3, h4, h5, h6, p",
+      "output": "json"
+    }
+  }
 }
