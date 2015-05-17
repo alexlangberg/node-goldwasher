@@ -1,3 +1,9 @@
+# 4.1.2 (2015-17-05)
+
+## Bugfixes
+
+-- Replace dashes (-) with spaces.
+
 # 4.1.1 (2015-17-05)
 
 ## Bugfixes
