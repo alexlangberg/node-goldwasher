@@ -1,3 +1,9 @@
+# 4.1.1 (2015-17-05)
+
+## Bugfixes
+
+-- Now preserves numbers in texts.
+
 # 4.1.0 (2015-17-05)
 
 ## Features
