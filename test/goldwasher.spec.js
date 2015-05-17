@@ -30,7 +30,9 @@ var testContentHref = '<a href="/oak/strong"><h1>' +
 
                       '<a href="http://www.pipe.com/rust">' +
                       'The pipe began to rust while new.' +
-                      '</a>';
+                      '</a>' +
+
+                      '<h1></h1>';
 var testContentNoHref = '<p><h1>' +
                         'Open the crate but don&#39;t break the glass.' +
                         '</h1></p>';
@@ -216,6 +218,11 @@ describe('filtering', function() {
   it('works with strings with elements with no text', function() {
     parsed = goldwasher(testContentNone);
     parsed.should.be.an('array');
+  });
+
+  it('works with strings with elements with no text, for feeds', function() {
+    parsed = goldwasher(testContentNone, { output: 'atom', url: 'foo.com' });
+    parsed.should.contain('<?xml version="1.0" encoding="utf-8"?>');
   });
 
   it('removes newlines from the text', function() {

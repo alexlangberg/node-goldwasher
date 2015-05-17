@@ -154,8 +154,46 @@ var sanitizeText = function(text) {
     .unescapeHTML()
     .stripTags()
     .collapseWhitespace()
-    .trim()
-    .s;
+    .s
+    .trim();
+};
+
+/**
+ * Remove special characters
+ * Courtesy of Seagull: http://stackoverflow.com/a/26482650
+ * @param text
+ * @returns {string}
+ */
+var removeSpecials = function(text) {
+  var lower = text.toLowerCase();
+  var upper = text.toUpperCase();
+
+  var result = '';
+  for (var i = 0; i &lt; lower.length; ++i) {
+    if (lower[i] !== upper[i] || lower[i].trim() === '') {
+      result += text[i];
+    }
+  }
+
+  return result;
+};
+
+/**
+ * Simplifies a text to make comparisons easy.
+ * @param text
+ * @returns {*}
+ */
+var simplifyText = function(text) {
+  var result;
+
+  if (R.isArrayLike(text)) {
+    return R.map(simplifyText, text);
+  }
+
+  result = text;
+  result = removeSpecials(text).toLowerCase();
+  result = S(result).collapseWhitespace().s.trim();
+  return result;
 };
 
 /**
@@ -173,63 +211,6 @@ var getCheerioMetaTag = function($, name) {
 };
 
 /**
- * Returns a slugified version of the text or an array of texts.
- * Often used for comparison.
- * @param text
- * @returns {*}
- */
-var slugifyText = function(text) {
-  if (R.isArrayLike(text)) {
-    return R.map(slugifyText, text);
-  }
-  return S(text).toLowerCase().s.replace(/[\.,-\/#!$%\^&amp;\*;:{}=\-_`~()']/g, '');
-};
-
-/**
- * Checks whether a list contains provided text.
- * @param text
- * @param list
- * @returns {boolean}
- */
-var slugifiedTextArrayContains = function(text, list) {
-  return !!R.contains(slugifyText(text), slugifyText(list));
-};
-
-/**
- * Checks whether a text contains any text in a list
- * @param text
- * @param list
- * @returns {boolean}
- */
-var slugifiedTextContains = function(text, list) {
-  return !!R.filter(function(listItem) {
-    return S(slugifyText(text)).contains(slugifyText(listItem));
-  }, list).length;
-};
-
-/**
- * Reversed slugifiedTextArrayContains.
- * @param text
- * @param blacklist
- * @returns {boolean}
- */
-var slugifiedTextFilter = function(text, blacklist) {
-  return !slugifiedTextArrayContains(text, blacklist);
-};
-
-/**
- * * Returns array of keywords not in the blacklist.
- * @param keywords
- * @param blacklist
- * @returns {Array|*}
- */
-var filterKeywords = function(keywords, blacklist) {
-  return R.filter(function(item) {
-    return slugifiedTextFilter(item, blacklist);
-  }, keywords);
-};
-
-/**
  * Counts keyword occurences in text.
  * @param text
  * @param keywords
@@ -239,7 +220,7 @@ var countKeywords = function(text, keywords) {
   return R.map(function(keyword) {
     return {
       word: keyword,
-      count: S(slugifyText(text)).count(slugifyText(keyword))
+      count: S(text).count(keyword)
     };
   }, keywords);
 };
@@ -247,12 +228,15 @@ var countKeywords = function(text, keywords) {
 /**
  * Get keywords from text.
  * @param text
- * @param blacklist
+ * @param stopWords
  * @returns {Array|*}
  */
-var getKeywordsFromText = function(text, blacklist) {
-  var keywords = R.uniq(slugifyText(text).split(' '));
-  return countKeywords(text, filterKeywords(keywords, blacklist));
+var getKeywordsFromText = function(text, stopWords) {
+  var simplifiedText = simplifyText(text);
+  var keywords = R.uniq(simplifiedText.split(' '));
+  var filtered = R.difference(keywords, stopWords);
+
+  return countKeywords(simplifiedText, filtered);
 };
 
 /**
@@ -356,47 +340,58 @@ var outputToFeed = function(batch, output) {
 };
 
 /**
- * Function to get keywords for a nugget from a text.
+ * returns true if "text" contains any of the texts in "list"
  * @param text
- * @param filterKeywords
- * @param filterLocale
- * @returns {Array|*}
+ * @param list
+ * @returns {boolean}
  */
-var getNuggetKeywords = function(text, filterKeywords, filterLocale) {
-  var stopwords = filterKeywords;
-  var localeJson;
-
-  if (filterLocale) {
-    localeJson = require(
-      '../stop_words/' + filterLocale + '.json'
-    );
-    stopwords = R.concat(stopwords, localeJson.stopWords);
-  }
-
-  return getKeywordsFromText(text, stopwords);
+var textSearch = function(text, list) {
+  return !!R.filter(function(listItem) {
+    return S(text).contains(listItem);
+  }, list).length;
 };
 
 /**
- * Determine if a nugget should be filtered out according to options.
+ * returns true if nugget should be removed.
  * @param text
+ * @param stopTexts
  * @param index
- * @param options
+ * @param limit
+ * @param search
  * @returns {boolean}
  */
-var nuggetFilter = function(text, index, options) {
-  if (options.limit &amp;&amp; index >= options.limit) {
-    return true;
-  }
+var nuggetFilter = function(text, stopTexts, index, limit, search) {
+  if (limit &amp;&amp; index >= limit) { return true; }
 
-  if (slugifiedTextArrayContains(text, options.filterTexts)) {
-    return true;
-  }
+  if (R.difference([text], stopTexts).length === 0) { return true; }
 
-  if (options.search.length > 0) {
-    if (!slugifiedTextContains(text, options.search)) {
+  if (search.length > 0) {
+    if (!textSearch(text, search)) {
       return true;
     }
   }
+};
+
+/**
+ * Gets all stop words.
+ * @param filterKeywords
+ * @param filterLocale
+ * @returns {*}
+ */
+var getStopwords = function(filterKeywords, filterLocale) {
+  var stopWords = filterKeywords;
+  var localeJson;
+
+  if (filterLocale) {
+    localeJson = require('../stop_words/' + filterLocale + '.json');
+    stopWords = R.concat(
+      stopWords,
+      localeJson.stopWords);
+  }
+
+  stopWords = simplifyText(stopWords);
+
+  return stopWords;
 };
 
 /**
@@ -418,14 +413,29 @@ var inputFromCheerio = function($, options) {
   var scraped = $(options.selector);
   var nuggets = [];
   var batchUuid = uuid.v1();
+  var simpleSearch = simplifyText(options.search);
+  var simpleStopTexts = simplifyText(options.filterTexts);
+  var simpleStopWords = getStopwords(
+    options.filterKeywords,
+    options.filterLocale
+  );
 
   scraped.each(function(index) {
     var nugget = {};
     var text = sanitizeText($(this).text());
+    var simpleText = simplifyText(text);
 
-    if (!text) { return; }
+    if (simpleText === '' || simpleText === null) { return; }
 
-    if (nuggetFilter(text, index, options)) { return; }
+    if (nuggetFilter(
+        simpleText,
+        simpleStopTexts,
+        index,
+        options.limit,
+        simpleSearch
+      )) {
+      return;
+    }
 
     nugget.source = options.url;
     nugget.href = getCheerioClosestHref($(this), options.url);
@@ -435,11 +445,7 @@ var inputFromCheerio = function($, options) {
     nugget.timestamp = meta.time;
     nugget.uuid = uuid.v1();
     nugget.batch = batchUuid;
-    nugget.keywords = getNuggetKeywords(
-      text,
-      options.filterKeywords,
-      options.filterLocale
-    );
+    nugget.keywords = getKeywordsFromText(text, simpleStopWords);
 
     nuggets.push(nugget);
   });
@@ -489,12 +495,27 @@ var inputFromFeed = function(input, options) {
   var scraped = feed.getItems(0);
   var nuggets = [];
   var batchUuid = uuid.v1();
+  var simpleSearch = simplifyText(options.search);
+  var simpleStopTexts = simplifyText(options.filterTexts);
+  var simpleStopWords = getStopwords(
+    options.filterKeywords,
+    options.filterLocale
+  );
 
   R.forEachIndexed(function(value, index) {
     var nugget = {};
     var text = sanitizeText(value.getTitle());
+    var simpleText = simplifyText(text);
 
-    if (nuggetFilter(text, index, options)) { return; }
+    if (nuggetFilter(
+        simpleText,
+        simpleStopTexts,
+        index,
+        options.limit,
+        simpleSearch
+      )) {
+      return;
+    }
 
     nugget.source = meta.url;
     nugget.href = feed.getPermalink();
@@ -504,11 +525,8 @@ var inputFromFeed = function(input, options) {
     nugget.timestamp = meta.time;
     nugget.uuid = uuid.v1();
     nugget.batch = batchUuid;
-    nugget.keywords = getNuggetKeywords(
-      text,
-      options.filterKeywords,
-      options.filterLocale
-    );
+    nugget.keywords = getKeywordsFromText(text, simpleStopWords);
+
     nuggets.push(nugget);
   }, scraped);
 
@@ -683,7 +701,7 @@ module.exports = goldwasher;</code></pre>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Sat May 16 2015 23:43:00 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Sun May 17 2015 14:51:35 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
