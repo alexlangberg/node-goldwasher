@@ -16,6 +16,7 @@ var testContent = '<h1>foo</h1><h1>bar</h1>';
 var testContentNone = '<h1>foo</h1><h1> </h1><h1></h1>';
 var testContentAccents = '<h1>rødgrød</h1>';
 var testContentIntegers = '<h1>0123456789</h1>';
+var testContentDash = '<h1>hello-world</h1>';
 var testContentHref = '<a href="/oak/strong"><h1>' +
                       'Oak is strong and also gives shade.' +
                       '</h1></a>' +
@@ -219,6 +220,12 @@ describe('filtering', function() {
   it('preserves integers', function() {
     parsed = goldwasher(testContentIntegers);
     parsed[0].keywords[0].word.should.equal('0123456789');
+  });
+
+  it('replaces dashes with spaces', function() {
+    parsed = goldwasher(testContentDash);
+    parsed[0].keywords[0].word.should.equal('hello');
+    parsed[0].keywords[1].word.should.equal('world');
   });
 
   it('works with strings with elements with no text', function() {
