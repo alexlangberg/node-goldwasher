@@ -1,3 +1,9 @@
+# 4.0.3 (2015-17-05)
+
+## Features
+
+- No longer uses slugification. This resulted in the removal of characters not present in the English alphabet, such as scandinavian, greek, russian etc. These are now preserved.
+
 # 4.0.0 (2015-16-05)
 
 ## Features
