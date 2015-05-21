@@ -174,34 +174,36 @@ var result = goldwasher(html, options);
         <total>3</total>
         <batch>14eefda0-f762-11e4-a0b3-d5647c4f7651</batch>
         <source>http://www.oakisstrong.com</batch>
-        <keyword>
-            <word>oak</word>
-            <count>1</count>
-        </keyword>
-        <keyword>
-            <word>is</word>
-            <count>1</count>
-        </keyword>
-        <keyword>
-            <word>strong</word>
-            <count>1</count>
-        </keyword>
-        <keyword>
-            <word>and</word>
-            <count>1</count>
-        </keyword>
-        <keyword>
-            <word>also</word>
-            <count>1</count>
-        </keyword>
-        <keyword>
-            <word>gives</word>
-            <count>1</count>
-        </keyword>
-        <keyword>
-            <word>shade</word>
-            <count>1</count>
-        </keyword>
+        <keywords>
+            <keyword>
+                <word>oak</word>
+                <count>1</count>
+            </keyword>
+            <keyword>
+                <word>is</word>
+                <count>1</count>
+            </keyword>
+            <keyword>
+                <word>strong</word>
+                <count>1</count>
+            </keyword>
+            <keyword>
+                <word>and</word>
+                <count>1</count>
+            </keyword>
+            <keyword>
+                <word>also</word>
+                <count>1</count>
+            </keyword>
+            <keyword>
+                <word>gives</word>
+                <count>1</count>
+            </keyword>
+            <keyword>
+                <word>shade</word>
+                <count>1</count>
+            </keyword>
+        </keywords>
     </nugget>
 </goldwasher>
 ```

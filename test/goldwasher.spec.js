@@ -50,61 +50,6 @@ var testContentMeta = '<html><head>' +
                       '</head><body>' +
                       testContentHref +
                       '</body></html>';
-var testContentXmlGold = '<?xml version="1.0" encoding="UTF-8"?>' +
-  '<goldwasher>' +
-    '<nugget>' +
-      '<source>foo.com</source>' +
-      '<href>/oak/strong</href>' +
-      '<tag>h1</tag>' +
-      '<text>Oak is strong and also gives shade.</text>' +
-      '<position>0</position>' +
-      '<timestamp>1431296135800</timestamp>' +
-      '<uuid>14eefda0-f762-11e4-a0b3-d5647c4f7651</uuid>' +
-      '<batch>24eefda0-f762-11e4-a0b3-d5647c4f7651</batch>' +
-      '<total>3</total>' +
-      '<keyword>' +
-       '<word>oak</word>' +
-       '<count>1</count>' +
-      '</keyword>' +
-      '<keyword>' +
-        '<word>strong</word>' +
-        '<count>1</count>' +
-      '</keyword>' +
-    '</nugget>' +
-  '</goldwasher>';
-var testContentXmlGoldArray = '<?xml version="1.0" encoding="UTF-8"?>' +
-  '<goldwasher>' +
-    '<nugget>' +
-      '<source>foo.com</source>' +
-      '<href>/oak/strong</href>' +
-      '<tag>h1</tag>' +
-      '<text>Oak is strong and also gives shade.</text>' +
-      '<position>0</position>' +
-      '<timestamp>1431296135800</timestamp>' +
-      '<uuid>14eefda0-f762-11e4-a0b3-d5647c4f7651</uuid>' +
-      '<batch>24eefda0-f762-11e4-a0b3-d5647c4f7651</batch>' +
-      '<total>3</total>' +
-      '<keyword>' +
-        '<word>oak</word>' +
-        '<count>1</count>' +
-      '</keyword>' +
-    '</nugget>' +
-    '<nugget>' +
-      '<source>foo.com</source>' +
-      '<href>/oak/strong</href>' +
-      '<tag>h1</tag>' +
-      '<text>Oak is strong and also gives shade.</text>' +
-      '<position>0</position>' +
-      '<timestamp>1431296135800</timestamp>' +
-      '<uuid>14eefda0-f762-11e4-a0b3-d5647c4f7651</uuid>' +
-      '<batch>24eefda0-f762-11e4-a0b3-d5647c4f7651</batch>' +
-      '<total>3</total>' +
-      '<keyword>' +
-        '<word>oak</word>' +
-        '<count>1</count>' +
-      '</keyword>' +
-    '</nugget>' +
-  '</goldwasher>';
 var testContentXml = '<?xml version="1.0" encoding="UTF-8"?>' +
   '<foo><bar>' +
   '<baz>Oak is strong and also gives shade.</baz>' +
@@ -339,18 +284,6 @@ describe('conversion', function() {
     done();
   });
 
-  it('can receive goldwasher XML as input', function(done) {
-    parsed = goldwasher(testContentXmlGoldArray);
-    validateNuggets(parsed);
-    done();
-  });
-
-  it('can receive goldwasher XML with only one nugget', function(done) {
-    parsed = goldwasher(testContentXmlGold);
-    validateNuggets(parsed);
-    done();
-  });
-
   it('can receive XML as input', function(done) {
     parsed = goldwasher(testContentXml, {
       url: 'foo.com',
@@ -358,25 +291,6 @@ describe('conversion', function() {
     });
     validateNuggets(parsed);
     parsed.length.should.equal(1);
-    parsed[0].keywords.length.should.equal(7);
-    parsed[0].keywords[0].word.should.equal('oak');
-
-    done();
-  });
-
-  it('can receive feeds as input', function(done) {
-    var input = goldwasher(testContentMeta, {
-      output: 'atom',
-      url: 'foo.com',
-      selector: 'h1, h2, a'
-    });
-
-    parsed = goldwasher(input, {
-      output: 'json',
-      filterTexts: ['Cats and dogs each hate the other.']
-    });
-    validateNuggets(parsed);
-    parsed.length.should.equal(4);
     parsed[0].keywords.length.should.equal(7);
     parsed[0].keywords[0].word.should.equal('oak');
 
@@ -395,6 +309,7 @@ describe('conversion', function() {
     parsed.should.contain('<timestamp>');
     parsed.should.contain('<uuid>');
     parsed.should.contain('<total>3</total>');
+    parsed.should.contain('<keywords>');
     parsed.should.contain('<keyword>');
     parsed.should.contain('<source>');
     parsed.should.contain('<word>oak</word>');

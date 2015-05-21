@@ -26,7 +26,6 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>// jscs:disable requirePaddingNewLinesAfterBlocks
-// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 'use strict';
 
 var v = require('validator');
@@ -37,8 +36,6 @@ var cheerio = require('cheerio');
 var uuid = require('node-uuid');
 var js2xmlparser = require('js2xmlparser');
 var Feed = require('feed');
-var NodePie = require('nodepie');
-var xml2json = require('xml2json');
 
 /**
  * Gets an object with the default options.
@@ -209,7 +206,6 @@ var simplifyText = function(text) {
     return R.map(simplifyText, text);
   }
 
-  result = text;
   result = removeSpecials(text).toLowerCase();
   result = S(result).collapseWhitespace().s.trim();
   return result;
@@ -284,7 +280,7 @@ var getCheerioMeta = function($, url) {
  * Get meta data from nuggets for building feeds.
  * @param nuggets
  * @returns {{
- *   url: (convertLcovFileObject.source|*|ret.source|source|string|Window),
+ *   url: string,
  *   time: (timestamp|*|Number|number)
  * }}
  */
@@ -300,13 +296,9 @@ var getNuggetsMeta = function(nuggets) {
  * @type {Function|*}
  */
 var getNuggetsKeywordTexts = R.pipe(
-  R.map(function(nugget) {
-    return nugget.keywords;
-  }),
+  R.map(function(nugget) { return nugget.keywords; }),
   R.flatten(),
-  R.map(function(keyword) {
-    return keyword.word;
-  }),
+  R.map(function(keyword) { return keyword.word; }),
   R.uniq()
 );
 
@@ -317,8 +309,11 @@ var getNuggetsKeywordTexts = R.pipe(
  */
 var outputToXml = function(batch) {
   var nuggets = R.forEach(function(nugget) {
-    nugget.keyword = nugget.keywords;
-    delete nugget.keywords;
+    nugget.temp = nugget.keywords;
+    nugget.keywords = {};
+    nugget.keywords.keyword = [];
+    nugget.keywords.keyword.push(nugget.temp);
+    delete nugget.temp;
   }, batch.nuggets);
 
   return js2xmlparser('goldwasher', {nugget: nuggets});
@@ -486,105 +481,12 @@ var inputFromCheerio = function($, options) {
 };
 
 /**
- * Get meta data for building feeds.
- * @param feed
- * @returns {{description: *, url: *, time: (number|*), title: *}}
- */
-var getFeedMeta = function(feed) {
-  return {
-    description: feed.getDescription(),
-    url: feed.getPermalink(),
-    time: Date.now(),
-    title: feed.getTitle()
-  };
-};
-
-/**
- * Converts a NodePie object to an array of nuggets.
- * @param input
- * @param options
- * @returns {{
- *   meta: {
- *     description: *,
- *     url: *,
- *     time: (number|*),
- *     title: *
- *   },
- *   nuggets: Array
- * }}
- */
-var inputFromFeed = function(input, options) {
-  var feed = new NodePie(input);
-  feed.init();
-  var meta = getFeedMeta(feed);
-  var scraped = feed.getItems(0);
-  var nuggets = [];
-  var batchUuid = uuid.v1();
-  var simpleSearch = simplifyText(options.search);
-  var simpleStopTexts = simplifyText(options.filterTexts);
-  var simpleStopWords = getStopwords(
-    options.filterKeywords,
-    options.filterLocale
-  );
-
-  R.forEachIndexed(function(value, index) {
-    var nugget = {};
-    var text = sanitizeText(value.getTitle());
-    var simpleText = simplifyText(text);
-
-    if (nuggetFilter(
-        simpleText,
-        simpleStopTexts,
-        index,
-        options.limit,
-        simpleSearch
-      )) {
-      return;
-    }
-
-    nugget.source = meta.url;
-    nugget.href = feed.getPermalink();
-    nugget.tag = 'feed';
-    nugget.text = text;
-    nugget.position = index;
-    nugget.timestamp = meta.time;
-    nugget.uuid = uuid.v1();
-    nugget.batch = batchUuid;
-    nugget.keywords = getKeywordsFromText(text, simpleStopWords);
-
-    nuggets.push(nugget);
-  }, scraped);
-
-  nuggets = R.forEach(function(nugget) {
-    nugget.total = nuggets.length;
-  }, nuggets);
-
-  return {
-    meta: meta,
-    nuggets: nuggets
-  };
-};
-
-/**
  * Detects the type of input. Could be improved a lot.
  * @param input
  * @returns {string}
  */
 var detectInputType = function(input) {
   if (R.is(String, input)) {
-
-    // detect RSS for NodePie
-    if (S(input).contains('&lt;feed xmlns="http://www.w3.org/2005/Atom">') ||
-      S(input).contains('&lt;rss version="2.0">') ||
-      S(input).contains('&lt;rss version="0.92">') ||
-      S(input).contains('&lt;/rdf:RDF>')) {
-      return 'feed';
-    }
-
-    // detect if goldwasher XML format
-    if (S(input).contains('&lt;goldwasher>')) {
-      return 'goldwasherXml';
-    }
 
     // detect if XML
     if (S(input).contains('&lt;?xml version="1.0" encoding="UTF-8"?>')) {
@@ -615,46 +517,6 @@ var detectInputType = function(input) {
 };
 
 /**
- * Converts a nugget from XML format to JSON format
- * @param nugget
- * @returns {*}
- */
-var xmlNuggetToJsonNugget = function(nugget) {
-  nugget.keywords = [nugget.keyword];
-  delete nugget.keyword;
-  return nugget;
-};
-
-/**
- * Converts goldwasher XML to nuggets.
- * @param input
- * @returns {{
- *   meta: {
- *     url: (convertLcovFileObject.source|*|ret.source|source|string|Window),
- *     time: (timestamp|*|Number|number)
- *   },
- *   nuggets: *
- * }}
- */
-var inputFromGoldwasherXml = function(input) {
-  var json = xml2json.toJson(input, {object: true});
-  var nuggets;
-
-  if (R.isArrayLike(json.goldwasher.nugget)) {
-    nuggets = R.map(function(nugget) {
-      return xmlNuggetToJsonNugget(nugget);
-    }, json.goldwasher.nugget);
-  } else {
-    nuggets = [xmlNuggetToJsonNugget(json.goldwasher.nugget)];
-  }
-
-  return {
-    meta: getNuggetsMeta(nuggets),
-    nuggets: nuggets
-  };
-};
-
-/**
  * Receives html as string or cheerio DOM, along with optional options object.
  * Outputs an array of objects in goldwasher output.
  * @param input
@@ -672,25 +534,12 @@ var goldwasher = function(input, userOptions) {
       meta: getNuggetsMeta(input),
       nuggets: input
     };
-  }
-
-  if (options.input === 'cheerio' ||
-    options.input === 'html' ||
-    options.input === 'xml') {
-
+  } else {
     if (options.input !== 'cheerio') {
       batch = inputFromCheerio(cheerio.load(input), options);
     } else {
       batch = inputFromCheerio(input, options);
     }
-  }
-
-  if (options.input === 'feed') {
-    batch = inputFromFeed(input, options);
-  }
-
-  if (options.input === 'goldwasherXml') {
-    batch = inputFromGoldwasherXml(input);
   }
 
   // now that we have the batch of nuggets, determine how to output them
@@ -726,7 +575,7 @@ module.exports = goldwasher;</code></pre>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Sun May 17 2015 15:59:14 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Thu May 21 2015 21:57:06 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
