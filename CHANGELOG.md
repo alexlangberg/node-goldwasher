@@ -4,7 +4,7 @@
 
 - To avoid the heavy iconv module, input support for feeds and goldwasher xml has been dropped. These were both very rare use cases and the native compilation required for iconv was both error prone and not very lightweight. The option to output to either XML or feeds is still available.
 
-- The XML output format has changed. Keywords will now be correctly put inside a <keywords> element.
+- The XML output format has changed. Keywords will now be correctly put inside a ```<keywords>``` element.
 
 
 # 4.1.2 (2015-17-05)
