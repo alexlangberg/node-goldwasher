@@ -49,6 +49,7 @@ var testContentMeta = '<html><head>' +
                       '<meta name="author" content="Baz Barfoo">' +
                       '</head><body>' +
                       testContentHref +
+                      '<div><a href="#"><h1>invalid link</h1></a></div>' +
                       '</body></html>';
 var testContentXml = '<?xml version="1.0" encoding="UTF-8"?>' +
   '<foo><bar>' +
