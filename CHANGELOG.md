@@ -1,4 +1,12 @@
-# 5.0.0 (2015-21-05)
+# 5.1.0 (2015-09-22)
+
+## New features
+
+- New ```contractAdjecent``` option to contract adjecent targets. See readme.
+
+- When finding nearest href, it will not only look at children but all other successors.
+
+# 5.0.0 (2015-05-21)
 
 ## Breaking changes
 
@@ -7,25 +15,25 @@
 - The XML output format has changed. Keywords will now be correctly put inside a ```<keywords>``` element.
 
 
-# 4.1.2 (2015-17-05)
+# 4.1.2 (2015-05-17)
 
 ## Bugfixes
 
 -- Replace dashes (-) with spaces.
 
-# 4.1.1 (2015-17-05)
+# 4.1.1 (2015-05-17)
 
 ## Bugfixes
 
 -- Now preserves numbers in texts.
 
-# 4.1.0 (2015-17-05)
+# 4.1.0 (2015-05-17)
 
 ## Features
 
 - No longer uses slugification. This resulted in the removal of characters not present in the English alphabet, such as scandinavian, greek, russian etc. These are now preserved.
 
-# 4.0.0 (2015-16-05)
+# 4.0.0 (2015-05-16)
 
 ## Features
 
