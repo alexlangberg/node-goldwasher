@@ -55,6 +55,10 @@ var testContentXml = '<?xml version="1.0" encoding="UTF-8"?>' +
   '<foo><bar>' +
   '<baz>Oak is strong and also gives shade.</baz>' +
   '</bar><foo>';
+var testContentDeepHref = '<h1><span><span>' +
+  '<a href="http://www.catsanddogs.com/hate">' +
+  'Cats and dogs each hate the other.' +
+  '</a></span></span></h1>';
 var parsed;
 var options;
 
@@ -84,6 +88,19 @@ describe('returned objects', function() {
     parsed.should.all.satisfy(function(nugget) {
       return validator.isURL(nugget.href);
     });
+  });
+
+  it('returns nuggets with a deep href', function() {
+    var testOptions = {
+      selector: 'h1',
+      url: 'http://www.catsanddogs.com'
+    };
+    parsed = goldwasher(testContentDeepHref, testOptions);
+    parsed.should.all.have.property('href');
+    parsed.should.all.satisfy(function(nugget) {
+      return validator.isURL(nugget.href);
+    });
+    parsed[0].href.should.equal('http://www.catsanddogs.com/hate');
   });
 
   it('returns nuggets with a tag', function() {
