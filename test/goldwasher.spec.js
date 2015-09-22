@@ -127,7 +127,6 @@ describe('returned objects', function() {
     parsed.should.all.satisfy(function(nugget) {
       return validator.isURL(nugget.href);
     });
-    console.log(parsed);
     parsed.length.should.equal(5);
   });
 

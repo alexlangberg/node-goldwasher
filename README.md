@@ -80,6 +80,7 @@ npm install goldwasher
 - ```filterKeywords``` - stop words that should be excluded as keywords.
 - ```filterLocale``` - stop words from external JSON file (see the folder stop_words).
 - ```output``` - output format (```json```, ```xml```, ```atom``` or ```rss```).
+- ```contractAdjecent``` - contracts adjecent targets. Useful for sites that split text, e.g. ```<div><h1>Hello</h1><br><h1>World<h1></div>```.
 
 ## Example
 ```javascript
