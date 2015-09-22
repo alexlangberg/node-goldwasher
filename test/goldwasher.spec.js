@@ -59,6 +59,15 @@ var testContentDeepHref = '<h1><span><span>' +
   '<a href="http://www.catsanddogs.com/hate">' +
   'Cats and dogs each hate the other.' +
   '</a></span></span></h1>';
+var testContentContract = '<h1><a href="http://www.catsanddogs.com/hate">' +
+  'Cats and ' +
+  '</a></h1>' +
+  '<h1><a href="http://www.catsanddogs.com/hate">' +
+  'dogs each ' +
+  '</a></h1>' +
+  '<h1><a href="http://www.catsanddogs.com/hate">' +
+  'hate the other.' +
+  '</a></h1>';
 var parsed;
 var options;
 
@@ -88,6 +97,38 @@ describe('returned objects', function() {
     parsed.should.all.satisfy(function(nugget) {
       return validator.isURL(nugget.href);
     });
+    parsed.length.should.equal(7);
+  });
+
+  it('can contract adjecent targets', function() {
+    var testOptions = {
+      selector: 'h1',
+      url: 'http://www.catsanddogs.com',
+      contractAdjecent: true
+    };
+    parsed = goldwasher(testContentContract, testOptions);
+    parsed.should.all.have.property('href');
+    parsed.should.all.satisfy(function(nugget) {
+      return validator.isURL(nugget.href);
+    });
+    parsed.length.should.equal(1);
+    parsed[0].text.should.equal('Cats and dogs each hate the other.');
+    parsed[0].href.should.equal('http://www.catsanddogs.com/hate');
+  });
+
+  it('does not contract dissimilar targets', function() {
+    var testOptions = {
+      selector: 'h1, h2, a',
+      url: 'http://www.google.com',
+      contractAdjecent: true
+    };
+    parsed = goldwasher(testContentHref, testOptions);
+    parsed.should.all.have.property('href');
+    parsed.should.all.satisfy(function(nugget) {
+      return validator.isURL(nugget.href);
+    });
+    console.log(parsed);
+    parsed.length.should.equal(5);
   });
 
   it('returns nuggets with a deep href', function() {
