@@ -237,7 +237,10 @@ describe('filtering', function() {
   });
 
   it('works with strings with elements with no text, for feeds', function() {
-    parsed = goldwasher(testContentNone, { output: 'atom', url: 'foo.com' });
+    parsed = goldwasher(testContentNone, {
+      output: 'atom',
+      url: 'http://foo.com'
+    });
     parsed.should.contain('<?xml version="1.0" encoding="utf-8"?>');
   });
 
@@ -377,7 +380,7 @@ describe('conversion', function() {
   it('can output as Atom feed', function() {
     parsed = goldwasher(testContentMeta, {
       output: 'atom',
-      url: 'foo.com'
+      url: 'http://foo.com'
     });
 
     parsed.should.all.be.a('string');
@@ -385,7 +388,7 @@ describe('conversion', function() {
     parsed.should.contain('<feed');
     parsed.should.contain('<title>foo title</title>');
     parsed.should.contain('<subtitle>Foo Bar Baz</subtitle>');
-    parsed.should.contain('<link rel="alternate" href="foo.com"/>');
+    parsed.should.contain('<link rel="alternate" href="http://foo.com"/>');
     parsed.should.contain('<name>Baz Barfoo</name>');
     parsed.should.contain('<category term="oak">');
     parsed.should.contain('<entry>');
@@ -399,14 +402,14 @@ describe('conversion', function() {
       '<![CDATA[Oak is strong and also gives shade.]]>' +
       '</summary>'
     );
-    parsed.should.contain('<link href="foo.com/oak/strong">');
-    parsed.should.contain('<id>foo.com/oak/strong</id>');
+    parsed.should.contain('<link href="http://foo.com/oak/strong">');
+    parsed.should.contain('<id>http://foo.com/oak/strong</id>');
   });
 
   it('can output as RSS feed', function() {
     parsed = goldwasher(testContentMeta, {
       output: 'rss',
-      url: 'foo.com'
+      url: 'http://foo.com'
     });
 
     parsed.should.all.be.a('string');
@@ -414,7 +417,7 @@ describe('conversion', function() {
     parsed.should.contain('<channel>');
     parsed.should.contain('<title>foo title</title>');
     parsed.should.contain('<description>Foo Bar Baz</description>');
-    parsed.should.contain('<link>foo.com</link>');
+    parsed.should.contain('<link>http://foo.com</link>');
     parsed.should.contain('<name>Baz Barfoo</name>');
     parsed.should.contain('<category>oak</category>');
     parsed.should.contain('<item>');
@@ -426,7 +429,7 @@ describe('conversion', function() {
       '<![CDATA[Oak is strong and also gives shade.]]>' +
       '</description>'
     );
-    parsed.should.contain('<link>foo.com/oak/strong</link>');
-    parsed.should.contain('<guid>foo.com/oak/strong</guid>');
+    parsed.should.contain('<link>http://foo.com/oak/strong</link>');
+    parsed.should.contain('<guid>http://foo.com/oak/strong</guid>');
   });
 });
