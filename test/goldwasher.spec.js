@@ -361,7 +361,7 @@ describe('conversion', function() {
   it('can output as XML', function() {
     parsed = goldwasher(testContentHref, {output: 'xml'});
     parsed.should.all.be.a('string');
-    parsed.should.contain('<?xml version="1.0" encoding="UTF-8"?>');
+    parsed.should.contain('<?xml version=\'1.0\'?>');
     parsed.should.contain('<nugget>');
     parsed.should.contain('<href>/oak/strong</href>');
     parsed.should.contain('<tag>h1</tag>');

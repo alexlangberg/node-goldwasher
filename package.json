@@ -49,7 +49,7 @@
     "cheerio": "^0.22.0",
     "feed": "^0.3.0",
     "joi": "^10.1.0",
-    "js2xmlparser": "^1.0.0",
+    "js2xmlparser": "^2.0.2",
     "ramda": "^0.23.0",
     "string": "^3.1.3",
     "uuid": "^3.0.0",
