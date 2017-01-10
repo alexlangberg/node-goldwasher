@@ -50,9 +50,9 @@
     "feed": "^0.3.0",
     "joi": "^8.0.5",
     "js2xmlparser": "^1.0.0",
-    "node-uuid": "^1.4.7",
     "ramda": "^0.21.0",
     "string": "^3.1.3",
+    "uuid": "^3.0.0",
     "validator": "^5.2.0"
   },
   "repository": {
